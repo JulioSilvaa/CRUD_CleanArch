@@ -15753,6 +15753,11 @@ var UserRepositorySQL = class {
       });
     });
   }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      yield prisma.user.delete({ where: { id } });
+    });
+  }
   get() {
     return __async(this, null, function* () {
       const userList = yield prisma.user.findMany({
@@ -15829,10 +15834,10 @@ var GetUserById = class {
 // src/infra/repositorySQL/UserRespositorySQL.test.ts
 describe("Unit test CreateUseCase", () => {
   const user = {
-    name: "julio",
-    email: "julio@teste",
-    phone: "4234242",
-    password: "23234234"
+    "name": "julio",
+    "email": "julio@teste3",
+    "phone": "4234242",
+    "password": "23234234"
   };
   test("should create users", () => __async(exports, null, function* () {
     const userSql = new UserRepositorySQL();
@@ -15864,7 +15869,7 @@ describe("Unit test CreateUseCase", () => {
   test("should get users by id", () => __async(exports, null, function* () {
     const userSql = new UserRepositorySQL();
     const findUserById = new GetUserById(userSql);
-    const userDB = yield findUserById.execute("fadaaab2-948b-4c68-8edb-e9b1bf5dcbd6");
+    const userDB = yield findUserById.execute("33653eaa-9528-43b3-8357-a8fe16574a7e");
     globalExpect(Object.keys(userDB)).toEqual(globalExpect.arrayContaining(Object.keys(user)));
   }));
 });

@@ -77,14 +77,14 @@ var UserRepositoryInMemory = class {
   constructor() {
     this.userList = [
       {
-        id: 1,
+        id: "1",
         name: "Julio",
         email: "julio@teste",
         phone: "234234234",
         password: "435345"
       },
       {
-        id: 2,
+        id: "2",
         name: "Luan",
         email: "luan@teste.com",
         phone: "234234234",
@@ -95,6 +95,11 @@ var UserRepositoryInMemory = class {
   findUserById(id) {
     const user = this.userList.find((user2) => user2.id === id);
     return user;
+  }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      this.userList.filter((user) => user.id === id);
+    });
   }
   findByEmail(email) {
     return __async(this, null, function* () {

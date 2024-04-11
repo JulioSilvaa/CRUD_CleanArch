@@ -7,7 +7,9 @@
     "dev": "tsx watch ./dist",
     "build": "rimraf ./dist &&  tsup ./src",
     "test": "tsup ./src && vitest run - coverage",
-    "express": "tsup ./src && node --env-file .env ./dist/infra/http/express/Express.js"
+    "express": "tsup ./src && node --env-file .env ./dist/infra/http/express/Express.js",
+    "ts.check": "tsc --project tsconfig.json",
+    "add-build": "git add dist"
   },
   "pre-commit": [
     "ts.check",

@@ -36,6 +36,23 @@ export default class UserController {
     }
   }
 
+  static async delete(req: any, body: any, res: any, next: any) {
+    try {
+      const { id } = req.params;
+      const userSQL = new UserRepositorySQL();
+      const user = await userSQL.findUserById(id);
+      if (!user) {
+        throw new Error("Usuário não encontrado");
+      }
+      await userSQL.deleteUser(user.id);
+      
+      return res.status(200).json({ message: "Usuário deletado com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
   static async getUsers(params: any, body: any, res: any, next: any) {
     try {
       const userSQL = new UserRepositorySQL();

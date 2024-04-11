@@ -6296,8 +6296,8 @@ var require_chai = __commonJS({
     exports2.use(assertion);
     var core2 = require_assertions();
     exports2.use(core2);
-    var expect3 = require_expect();
-    exports2.use(expect3);
+    var expect2 = require_expect();
+    exports2.use(expect2);
     var should2 = require_should();
     exports2.use(should2);
     var assert2 = require_assert();
@@ -10289,14 +10289,14 @@ if (!Object.prototype.hasOwnProperty.call(globalThis, MATCHERS_OBJECT)) {
     get: () => assymetricMatchers
   });
 }
-function getState(expect3) {
-  return globalThis[MATCHERS_OBJECT].get(expect3);
+function getState(expect2) {
+  return globalThis[MATCHERS_OBJECT].get(expect2);
 }
-function setState(state, expect3) {
+function setState(state, expect2) {
   const map2 = globalThis[MATCHERS_OBJECT];
-  const current = map2.get(expect3) || {};
+  const current = map2.get(expect2) || {};
   Object.assign(current, state);
-  map2.set(expect3, current);
+  map2.set(expect2, current);
 }
 function getMatcherUtils() {
   const c2 = () => getColors();
@@ -10676,8 +10676,8 @@ var AsymmetricMatcher3 = class {
     this.sample = sample;
     this.inverse = inverse;
   }
-  getMatcherContext(expect3) {
-    return __spreadProps(__spreadValues({}, getState(expect3 || globalThis[GLOBAL_EXPECT])), {
+  getMatcherContext(expect2) {
+    return __spreadProps(__spreadValues({}, getState(expect2 || globalThis[GLOBAL_EXPECT])), {
       equals,
       isNot: this.inverse,
       customTesters: getCustomEqualityTesters(),
@@ -11678,7 +11678,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
     return proxy;
   });
 };
-function getMatcherState(assertion, expect3) {
+function getMatcherState(assertion, expect2) {
   const obj = assertion._obj;
   const isNot = util.flag(assertion, "negate");
   const promise = util.flag(assertion, "promise") || "";
@@ -11688,7 +11688,7 @@ function getMatcherState(assertion, expect3) {
     iterableEquality,
     subsetEquality
   });
-  const matcherState = __spreadProps(__spreadValues({}, getState(expect3)), {
+  const matcherState = __spreadProps(__spreadValues({}, getState(expect2)), {
     customTesters: getCustomEqualityTesters(),
     isNot,
     utils: jestUtils,
@@ -11710,11 +11710,11 @@ var JestExtendError = class extends Error {
     this.expected = expected;
   }
 };
-function JestExtendPlugin(expect3, matchers) {
+function JestExtendPlugin(expect2, matchers) {
   return (c2, utils) => {
     Object.entries(matchers).forEach(([expectAssertionName, expectAssertion]) => {
       function expectWrapper(...args) {
-        const { state, isNot, obj } = getMatcherState(this, expect3);
+        const { state, isNot, obj } = getMatcherState(this, expect2);
         const result = expectAssertion.call(state, obj, ...args);
         if (result && typeof result === "object" && result instanceof Promise) {
           return result.then(({ pass: pass2, message: message2, actual: actual2, expected: expected2 }) => {
@@ -11735,7 +11735,7 @@ function JestExtendPlugin(expect3, matchers) {
         }
         asymmetricMatch(other) {
           const { pass } = expectAssertion.call(
-            this.getMatcherContext(expect3),
+            this.getMatcherContext(expect2),
             other,
             ...this.sample
           );
@@ -11752,13 +11752,13 @@ function JestExtendPlugin(expect3, matchers) {
         }
       }
       const customMatcher = (...sample) => new CustomMatcher(false, ...sample);
-      Object.defineProperty(expect3, expectAssertionName, {
+      Object.defineProperty(expect2, expectAssertionName, {
         configurable: true,
         enumerable: true,
         value: customMatcher,
         writable: true
       });
-      Object.defineProperty(expect3.not, expectAssertionName, {
+      Object.defineProperty(expect2.not, expectAssertionName, {
         configurable: true,
         enumerable: true,
         value: (...sample) => new CustomMatcher(true, ...sample),
@@ -11774,8 +11774,8 @@ function JestExtendPlugin(expect3, matchers) {
   };
 }
 var JestExtend = (chai3, utils) => {
-  utils.addMethod(chai3.expect, "extend", (expect3, expects) => {
-    chai3.use(JestExtendPlugin(expect3, expects));
+  utils.addMethod(chai3.expect, "extend", (expect2, expects) => {
+    chai3.use(JestExtendPlugin(expect2, expects));
   });
 };
 
@@ -13560,9 +13560,9 @@ use(SnapshotPlugin);
 use(JestAsymmetricMatchers);
 function createExpect(test3) {
   var _a2;
-  const expect3 = (value, message) => {
-    const { assertionCalls } = getState(expect3);
-    setState({ assertionCalls: assertionCalls + 1, soft: false }, expect3);
+  const expect2 = (value, message) => {
+    const { assertionCalls } = getState(expect2);
+    setState({ assertionCalls: assertionCalls + 1, soft: false }, expect2);
     const assert2 = expect(value, message);
     const _test2 = test3 || getCurrentTest();
     if (_test2)
@@ -13570,10 +13570,10 @@ function createExpect(test3) {
     else
       return assert2;
   };
-  Object.assign(expect3, expect);
-  Object.assign(expect3, globalThis[ASYMMETRIC_MATCHERS_OBJECT]);
-  expect3.getState = () => getState(expect3);
-  expect3.setState = (state) => setState(state, expect3);
+  Object.assign(expect2, expect);
+  Object.assign(expect2, globalThis[ASYMMETRIC_MATCHERS_OBJECT]);
+  expect2.getState = () => getState(expect2);
+  expect2.setState = (state) => setState(state, expect2);
   const globalState = getState(globalThis[GLOBAL_EXPECT]) || {};
   setState(__spreadProps(__spreadValues({}, globalState), {
     assertionCalls: 0,
@@ -13584,24 +13584,24 @@ function createExpect(test3) {
     environment: getCurrentEnvironment(),
     testPath: test3 ? (_a2 = test3.suite.file) == null ? void 0 : _a2.filepath : globalState.testPath,
     currentTestName: test3 ? getFullName(test3) : globalState.currentTestName
-  }), expect3);
-  expect3.extend = (matchers) => expect.extend(expect3, matchers);
-  expect3.addEqualityTesters = (customTesters) => addCustomEqualityTesters(customTesters);
-  expect3.soft = (...args) => {
-    const assert2 = expect3(...args);
-    expect3.setState({
+  }), expect2);
+  expect2.extend = (matchers) => expect.extend(expect2, matchers);
+  expect2.addEqualityTesters = (customTesters) => addCustomEqualityTesters(customTesters);
+  expect2.soft = (...args) => {
+    const assert2 = expect2(...args);
+    expect2.setState({
       soft: true
     });
     return assert2;
   };
-  expect3.unreachable = (message) => {
+  expect2.unreachable = (message) => {
     assert.fail(`expected${message ? ` "${message}" ` : " "}not to be reached`);
   };
   function assertions(expected) {
-    const errorGen = () => new Error(`expected number of assertions to be ${expected}, but got ${expect3.getState().assertionCalls}`);
+    const errorGen = () => new Error(`expected number of assertions to be ${expected}, but got ${expect2.getState().assertionCalls}`);
     if (Error.captureStackTrace)
       Error.captureStackTrace(errorGen(), assertions);
-    expect3.setState({
+    expect2.setState({
       expectedAssertionsNumber: expected,
       expectedAssertionsNumberErrorGen: errorGen
     });
@@ -13610,14 +13610,14 @@ function createExpect(test3) {
     const error = new Error("expected any number of assertion, but got none");
     if (Error.captureStackTrace)
       Error.captureStackTrace(error, hasAssertions);
-    expect3.setState({
+    expect2.setState({
       isExpectingAssertions: true,
       isExpectingAssertionsError: error
     });
   }
-  util.addMethod(expect3, "assertions", assertions);
-  util.addMethod(expect3, "hasAssertions", hasAssertions);
-  return expect3;
+  util.addMethod(expect2, "assertions", assertions);
+  util.addMethod(expect2, "hasAssertions", hasAssertions);
+  return expect2;
 }
 var globalExpect = createExpect();
 Object.defineProperty(globalThis, GLOBAL_EXPECT, {
@@ -15762,14 +15762,14 @@ var UserRepositoryInMemory = class {
   constructor() {
     this.userList = [
       {
-        id: 1,
+        id: "1",
         name: "Julio",
         email: "julio@teste",
         phone: "234234234",
         password: "435345"
       },
       {
-        id: 2,
+        id: "2",
         name: "Luan",
         email: "luan@teste.com",
         phone: "234234234",
@@ -15780,6 +15780,11 @@ var UserRepositoryInMemory = class {
   findUserById(id) {
     const user = this.userList.find((user2) => user2.id === id);
     return user;
+  }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      this.userList.filter((user) => user.id === id);
+    });
   }
   findByEmail(email) {
     return __async(this, null, function* () {
@@ -15801,8 +15806,24 @@ var UserRepositoryInMemory = class {
   }
 };
 
+// src/core/useCase/GetUserById.ts
+var GetUserById = class {
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  execute(id) {
+    return __async(this, null, function* () {
+      const user = yield this._userRepository.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o cadastrado");
+      }
+      return user;
+    });
+  }
+};
+
 // src/core/useCase/usecase.test.ts
-describe.skip("Unit test CreateUseCase", () => {
+describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
     email: "julio@teste",
@@ -15826,6 +15847,12 @@ describe.skip("Unit test CreateUseCase", () => {
     const findUsersLIst = new GetUserByEmail(userSql);
     const usersList = yield findUsersLIst.execute(user.email);
     console.log(usersList);
+  }));
+  test("should get a user by id", () => __async(exports, null, function* () {
+    const userSql = new UserRepositoryInMemory();
+    const findUserById = new GetUserById(userSql);
+    const user2 = yield findUserById.execute("2");
+    globalExpect(user2.name).toBe("Luan");
   }));
 });
 /*! Bundled license information:
