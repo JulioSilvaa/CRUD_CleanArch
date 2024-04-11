@@ -5,4 +5,5 @@ export default interface UserRepository {
   get(): Promise<IUserInterface[]>;
   findByEmail(email: string): Promise<IUserInterface>;
   findUserById(id: string): Promise<IUserInterface>;
+  deleteUser(id: any): Promise<void>
 }

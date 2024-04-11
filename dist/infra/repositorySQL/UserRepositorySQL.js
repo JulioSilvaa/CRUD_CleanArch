@@ -114,6 +114,11 @@ var UserRepositorySQL = class {
       });
     });
   }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      yield prisma.user.delete({ where: { id } });
+    });
+  }
   get() {
     return __async(this, null, function* () {
       const userList = yield prisma.user.findMany({

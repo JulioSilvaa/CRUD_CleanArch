@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import UserRepositoryInMemory from "./UserRepositoryInMemory";
 import CreateUserUseCase from "src/core/useCase/CreateUser";
 
-describe.skip("Unit test CreateUseCase", () => {
+describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
     email: "julio@teste",

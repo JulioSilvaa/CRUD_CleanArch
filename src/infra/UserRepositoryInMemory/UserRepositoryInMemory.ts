@@ -5,14 +5,14 @@ import UserRepository from "src/core/repositories/UserRepository";
 export default class UserRepositoryInMemory implements UserRepository {
   userList: any[] = [
     {
-      id: 1,
+      id: "1",
       name: "Julio",
       email: "julio@teste",
       phone: "234234234",
       password: "435345",
     },
     {
-      id: 2,
+      id: "2",
       name: "Luan",
       email: "luan@teste.com",
       phone: "234234234",
@@ -23,6 +23,11 @@ export default class UserRepositoryInMemory implements UserRepository {
   findUserById(id: string): Promise<IUserInterface> {
     const user = this.userList.find((user) => user.id === id);
     return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    this.userList.filter(user => user.id === id);
+
   }
 
   async findByEmail(email: string): Promise<IUserInterface> {

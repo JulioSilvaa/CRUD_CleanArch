@@ -4,9 +4,10 @@ import GetUserByEmail from "src/core/useCase/GetUserByEmail";
 import GetUsers from "src/core/useCase/GetUsers";
 import CreateUserUseCase from "src/core/useCase/CreateUser";
 import UserRepositoryInMemory from "src/infra/UserRepositoryInMemory/UserRepositoryInMemory";
+import GetUserById from "./GetUserById";
 
 
-describe.skip("Unit test CreateUseCase", () => {
+describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
     email: "julio@teste",
@@ -33,4 +34,12 @@ describe.skip("Unit test CreateUseCase", () => {
     const usersList = await findUsersLIst.execute(user.email);
     console.log(usersList);
   });
+
+  test("should get a user by id", async () => {
+    const userSql = new UserRepositoryInMemory();
+    const findUserById = new GetUserById(userSql);
+    const user = await findUserById.execute("2");
+    expect(user.name).toBe('Luan')
+  });
+
 });

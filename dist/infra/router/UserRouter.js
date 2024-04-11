@@ -195,6 +195,11 @@ var UserRepositorySQL = class {
       });
     });
   }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      yield prisma.user.delete({ where: { id } });
+    });
+  }
   get() {
     return __async(this, null, function* () {
       const userList = yield prisma.user.findMany({
@@ -237,6 +242,22 @@ var UserController = class {
       }
     });
   }
+  static delete(req, body, res, next) {
+    return __async(this, null, function* () {
+      try {
+        const { id } = req.params;
+        const userSQL = new UserRepositorySQL();
+        const user = yield userSQL.findUserById(id);
+        if (!user) {
+          throw new Error("Usu\xE1rio n\xE3o encontrado");
+        }
+        yield userSQL.deleteUser(user.id);
+        return res.status(200).json({ message: "Usu\xE1rio deletado com sucesso!" });
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
   static getUsers(params, body, res, next) {
     return __async(this, null, function* () {
       try {
@@ -256,4 +277,5 @@ var router = (0, import_express.Router)();
 router.get("/:id", ExpressAdapter.create(UserController.findUserById));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
 router.post("/", ExpressAdapter.create(UserController.add));
+router.delete("/:id", ExpressAdapter.create(UserController.delete));
 var UserRouter_default = router;
