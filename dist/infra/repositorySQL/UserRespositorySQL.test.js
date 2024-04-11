@@ -15723,41 +15723,41 @@ var UserRepositorySQL = class {
   }
   findByEmail(email) {
     return __async(this, null, function* () {
-      const user = yield prisma.user.findUnique({ where: { email } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
+      const user = yield prisma.user.findFirst({ where: { email } });
+      if (!user) {
         return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
     });
   }
-  getUserById(id) {
+  findUserById(id) {
     return __async(this, null, function* () {
       const user = yield prisma.user.findUnique({ where: { id } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
-        console.log("ByID sem User");
+      if (!user) {
+        return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
     });
   }
   get() {
     return __async(this, null, function* () {
-      const userList = yield prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+      const userList = yield prisma.user.findMany({
+        orderBy: { createdAt: "desc" }
+      });
       return userList;
     });
   }
@@ -15799,11 +15799,28 @@ var CreateUserUseCase = class {
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
-      const emailExists = yield this._userRepository.findByEmail(email);
-      if (emailExists) {
-        console.log("E-mail already exists");
+      const user = yield this._userRepository.save({
+        name,
+        email,
+        phone,
+        password
+      });
+      return user;
+    });
+  }
+};
+
+// src/core/useCase/GetUserById.ts
+var GetUserById = class {
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  execute(id) {
+    return __async(this, null, function* () {
+      const user = yield this._userRepository.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o cadastrado");
       }
-      const user = yield this._userRepository.save({ name, email, phone, password });
       return user;
     });
   }
@@ -15842,6 +15859,12 @@ describe("Unit test CreateUseCase", () => {
     const userSql = new UserRepositorySQL();
     const findUserByEmail = new GetUserByEmail(userSql);
     const userDB = yield findUserByEmail.execute(user.email);
+    globalExpect(Object.keys(userDB)).toEqual(globalExpect.arrayContaining(Object.keys(user)));
+  }));
+  test("should get users by id", () => __async(exports, null, function* () {
+    const userSql = new UserRepositorySQL();
+    const findUserById = new GetUserById(userSql);
+    const userDB = yield findUserById.execute("fadaaab2-948b-4c68-8edb-e9b1bf5dcbd6");
     globalExpect(Object.keys(userDB)).toEqual(globalExpect.arrayContaining(Object.keys(user)));
   }));
 });

@@ -84,41 +84,41 @@ var UserRepositorySQL = class {
   }
   findByEmail(email) {
     return __async(this, null, function* () {
-      const user = yield prisma.user.findUnique({ where: { email } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
+      const user = yield prisma.user.findFirst({ where: { email } });
+      if (!user) {
         return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
     });
   }
-  getUserById(id) {
+  findUserById(id) {
     return __async(this, null, function* () {
       const user = yield prisma.user.findUnique({ where: { id } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
-        console.log("ByID sem User");
+      if (!user) {
+        return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
     });
   }
   get() {
     return __async(this, null, function* () {
-      const userList = yield prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+      const userList = yield prisma.user.findMany({
+        orderBy: { createdAt: "desc" }
+      });
       return userList;
     });
   }
