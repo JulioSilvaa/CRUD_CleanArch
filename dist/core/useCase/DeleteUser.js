@@ -37,23 +37,20 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/adapters/ExpressAdapter.ts
-var ExpressAdapter_exports = {};
-__export(ExpressAdapter_exports, {
-  default: () => ExpressAdapter
+// src/core/useCase/DeleteUser.ts
+var DeleteUser_exports = {};
+__export(DeleteUser_exports, {
+  default: () => DeleteUser
 });
-module.exports = __toCommonJS(ExpressAdapter_exports);
-var ExpressAdapter = class {
-  static create(fn) {
-    return function(req, res, next) {
-      return __async(this, null, function* () {
-        const obj = yield fn(req, req.body, res, next);
-        try {
-          return obj;
-        } catch (error) {
-          return error;
-        }
-      });
-    };
+module.exports = __toCommonJS(DeleteUser_exports);
+var DeleteUser = class {
+  constructor(userRespository) {
+    this.userRespository = userRespository;
+  }
+  execute(id) {
+    return __async(this, null, function* () {
+      const userdeleted = yield this.userRespository.deleteUser(id);
+      return userdeleted;
+    });
   }
 };

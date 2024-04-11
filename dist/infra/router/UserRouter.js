@@ -50,11 +50,11 @@ var ExpressAdapter = class {
   static create(fn) {
     return function(req, res, next) {
       return __async(this, null, function* () {
-        const { status, obj } = yield fn(req.params, req.body);
+        const obj = yield fn(req, req.body, res, next);
         try {
-          res.status(status).json(obj);
+          return obj;
         } catch (error) {
-          next(error);
+          return error;
         }
       });
     };
@@ -68,11 +68,45 @@ var CreateUserUseCase = class {
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
-      const emailExists = yield this._userRepository.findByEmail(email);
-      if (emailExists) {
-        console.log("E-mail already exists");
+      const user = yield this._userRepository.save({
+        name,
+        email,
+        phone,
+        password
+      });
+      return user;
+    });
+  }
+};
+
+// src/core/useCase/GetUserByEmail.ts
+var GetUserByEmail = class {
+  constructor(userRepository) {
+    this._useRepository = userRepository;
+  }
+  execute(email) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this._useRepository.findByEmail(email);
+        return user;
+      } catch (error) {
+        console.error(error);
       }
-      const user = yield this._userRepository.save({ name, email, phone, password });
+    });
+  }
+};
+
+// src/core/useCase/GetUserById.ts
+var GetUserById = class {
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  execute(id) {
+    return __async(this, null, function* () {
+      const user = yield this._userRepository.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o cadastrado");
+      }
       return user;
     });
   }
@@ -87,7 +121,7 @@ var GetUsers = class {
     return __async(this, null, function* () {
       const userList = yield this._userRepository.get();
       if (userList.length === 0) {
-        console.log("Lista est\xE1 vazia");
+        throw new Error("Lista est\xE1 vazia");
       }
       return userList;
     });
@@ -135,68 +169,117 @@ var UserRepositorySQL = class {
   }
   findByEmail(email) {
     return __async(this, null, function* () {
-      const user = yield prisma.user.findUnique({ where: { email } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
+      const user = yield prisma.user.findFirst({ where: { email } });
+      if (!user) {
         return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
     });
   }
-  getUserById(id) {
+  findUserById(id) {
     return __async(this, null, function* () {
       const user = yield prisma.user.findUnique({ where: { id } });
-      if (user) {
-        return UserAdapter.create({
-          id: user == null ? void 0 : user.id,
-          name: user == null ? void 0 : user.name,
-          email: user == null ? void 0 : user.email,
-          phone: user == null ? void 0 : user.phone,
-          password: user == null ? void 0 : user.password,
-          createdAt: user == null ? void 0 : user.createdAt
-        });
-      } else {
-        console.log("ByID sem User");
+      if (!user) {
+        return null;
       }
+      return UserAdapter.create({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        createdAt: user.createdAt
+      });
+    });
+  }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      yield prisma.user.delete({ where: { id } });
     });
   }
   get() {
     return __async(this, null, function* () {
-      const userList = yield prisma.user.findMany({ orderBy: { createdAt: "desc" } });
-      return userList;
+      const userList = yield prisma.user.findMany({
+        orderBy: { createdAt: "desc" }
+      });
+      return { userList, quantity: userList.length };
     });
   }
 };
 
 // src/controller/userController.ts
 var UserController = class {
-  static getUsers(params, body) {
+  static add(params, body, res, next) {
     return __async(this, null, function* () {
-      const userSQL = new UserRepositorySQL();
-      const user = new GetUsers(userSQL);
-      const userLista = yield user.execute();
-      return { status: 200, obj: { data: userLista } };
+      try {
+        const userSQL = new UserRepositorySQL();
+        const checkEmailExists = new GetUserByEmail(userSQL);
+        const emailAlreadyExists = yield checkEmailExists.execute(body.email);
+        if (emailAlreadyExists) {
+          return res.status(400).json({ message: "Email j\xE1 est\xE1 em uso" });
+        }
+        const user = new CreateUserUseCase(userSQL);
+        yield user.execute(body);
+        return res.status(201).json({ message: "Usu\xE1rio criado com sucesso" });
+      } catch (error) {
+        next(error);
+      }
     });
   }
-  static add(params, body) {
+  static findUserById(req, body, res, next) {
     return __async(this, null, function* () {
-      const userSQL = new UserRepositorySQL();
-      const user = new CreateUserUseCase(userSQL);
-      yield user.execute(body);
-      return { status: 201, data: { message: "Usu\xE1rio criado com sucesso" } };
+      try {
+        const { id } = req.params;
+        const userSQL = new UserRepositorySQL();
+        const getUserById = new GetUserById(userSQL);
+        const user = yield getUserById.execute(id);
+        return res.status(200).json({ data: user });
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
+  static getUsers(params, body, res, next) {
+    return __async(this, null, function* () {
+      try {
+        const userSQL = new UserRepositorySQL();
+        const user = new GetUsers(userSQL);
+        const userLista = yield user.execute();
+        return res.status(200).json({ data: userLista });
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
+  static deleteUser(req, body, res, next) {
+    return __async(this, null, function* () {
+      try {
+        const { id } = req.params;
+        const userSQL = new UserRepositorySQL();
+        const user = yield userSQL.findUserById(id);
+        if (!user) {
+          throw new Error("Usu\xE1rio n\xE3o encontrado");
+        }
+        yield userSQL.deleteUser(user.id);
+        return res.status(200).json({ message: "Usu\xE1rio deletado com sucesso!" });
+      } catch (error) {
+        next(error);
+      }
     });
   }
 };
 
 // src/infra/router/UserRouter.ts
 var router = (0, import_express.Router)();
+router.get("/:id", ExpressAdapter.create(UserController.findUserById));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
 router.post("/", ExpressAdapter.create(UserController.add));
+router.delete("/:id", ExpressAdapter.create(UserController.deleteUser));
 var UserRouter_default = router;

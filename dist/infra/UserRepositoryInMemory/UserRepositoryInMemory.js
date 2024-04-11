@@ -92,11 +92,20 @@ var UserRepositoryInMemory = class {
       }
     ];
   }
+  findUserById(id) {
+    const user = this.userList.find((user2) => user2.id === id);
+    return user;
+  }
   findByEmail(email) {
     return __async(this, null, function* () {
       const user = yield this.userList.find((user2) => user2.email === email);
       const userToAdapter = UserAdapter.create(user);
       return userToAdapter;
+    });
+  }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      this.userList.filter((user) => user.id === id);
     });
   }
   get() {

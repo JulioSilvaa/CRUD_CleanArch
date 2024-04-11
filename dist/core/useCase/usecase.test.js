@@ -15689,8 +15689,12 @@ var GetUserByEmail = class {
   }
   execute(email) {
     return __async(this, null, function* () {
-      const user = yield this._useRepository.findByEmail(email);
-      return user;
+      try {
+        const user = yield this._useRepository.findByEmail(email);
+        return user;
+      } catch (error) {
+        console.error(error);
+      }
     });
   }
 };
@@ -15704,7 +15708,7 @@ var GetUsers = class {
     return __async(this, null, function* () {
       const userList = yield this._userRepository.get();
       if (userList.length === 0) {
-        console.log("Lista est\xE1 vazia");
+        throw new Error("Lista est\xE1 vazia");
       }
       return userList;
     });
@@ -15718,11 +15722,12 @@ var CreateUserUseCase = class {
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
-      const emailExists = yield this._userRepository.findByEmail(email);
-      if (emailExists) {
-        console.log("E-mail already exists");
-      }
-      const user = yield this._userRepository.save({ name, email, phone, password });
+      const user = yield this._userRepository.save({
+        name,
+        email,
+        phone,
+        password
+      });
       return user;
     });
   }
@@ -15776,11 +15781,20 @@ var UserRepositoryInMemory = class {
       }
     ];
   }
+  findUserById(id) {
+    const user = this.userList.find((user2) => user2.id === id);
+    return user;
+  }
   findByEmail(email) {
     return __async(this, null, function* () {
       const user = yield this.userList.find((user2) => user2.email === email);
       const userToAdapter = UserAdapter.create(user);
       return userToAdapter;
+    });
+  }
+  deleteUser(id) {
+    return __async(this, null, function* () {
+      this.userList.filter((user) => user.id === id);
     });
   }
   get() {
@@ -15797,7 +15811,7 @@ var UserRepositoryInMemory = class {
 };
 
 // src/core/useCase/usecase.test.ts
-describe.skip("Unit test CreateUseCase", () => {
+describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
     email: "julio@teste",

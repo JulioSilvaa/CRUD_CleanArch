@@ -51,7 +51,7 @@ var GetUsers = class {
     return __async(this, null, function* () {
       const userList = yield this._userRepository.get();
       if (userList.length === 0) {
-        console.log("Lista est\xE1 vazia");
+        throw new Error("Lista est\xE1 vazia");
       }
       return userList;
     });

@@ -1,15 +1,13 @@
-import express, { Application } from "express"
-import UserRouter from "src/infra/router/UserRouter"
-import { Request, Response, NextFunction } from "express"
+import express, { Request, Response, NextFunction } from "express";
+import UserRouter from "src/infra/router/UserRouter";
 
+const app = express();
+const port = process.env.PORT || 3000;
 
-const app: Application = express()
-const port = process.env.PORT || 3000
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-app.use('/api/user', UserRouter)
+app.use("/api/user", UserRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
@@ -22,5 +20,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});

@@ -49,8 +49,12 @@ var GetUserByEmail = class {
   }
   execute(email) {
     return __async(this, null, function* () {
-      const user = yield this._useRepository.findByEmail(email);
-      return user;
+      try {
+        const user = yield this._useRepository.findByEmail(email);
+        return user;
+      } catch (error) {
+        console.error(error);
+      }
     });
   }
 };

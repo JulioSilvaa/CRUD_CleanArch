@@ -7,7 +7,11 @@ export default class GetUserByEmail {
   }
 
   async execute(email: string) {
-    const user = await this._useRepository.findByEmail(email);
-    return user;
+    try {
+      const user = await this._useRepository.findByEmail(email);
+      return user;
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

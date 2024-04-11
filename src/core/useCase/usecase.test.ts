@@ -6,7 +6,7 @@ import CreateUserUseCase from "src/core/useCase/CreateUser";
 import UserRepositoryInMemory from "src/infra/UserRepositoryInMemory/UserRepositoryInMemory";
 
 
-describe.skip("Unit test CreateUseCase", () => {
+describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
     email: "julio@teste",

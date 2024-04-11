@@ -37,23 +37,23 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/adapters/ExpressAdapter.ts
-var ExpressAdapter_exports = {};
-__export(ExpressAdapter_exports, {
-  default: () => ExpressAdapter
+// src/core/useCase/GetUserById.ts
+var GetUserById_exports = {};
+__export(GetUserById_exports, {
+  default: () => GetUserById
 });
-module.exports = __toCommonJS(ExpressAdapter_exports);
-var ExpressAdapter = class {
-  static create(fn) {
-    return function(req, res, next) {
-      return __async(this, null, function* () {
-        const obj = yield fn(req, req.body, res, next);
-        try {
-          return obj;
-        } catch (error) {
-          return error;
-        }
-      });
-    };
+module.exports = __toCommonJS(GetUserById_exports);
+var GetUserById = class {
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  execute(id) {
+    return __async(this, null, function* () {
+      const user = yield this._userRepository.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o cadastrado");
+      }
+      return user;
+    });
   }
 };
