@@ -79,7 +79,7 @@ var prisma = new import_client.PrismaClient();
 var UserRepositorySQL = class {
   save(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
-      prisma.user.create({ data: { name, email, phone, password } });
+      yield prisma.user.create({ data: { name, email, phone, password } });
     });
   }
   findByEmail(email) {
@@ -128,6 +128,7 @@ var UserRepositorySQL = class {
   get() {
     return __async(this, null, function* () {
       const userList = yield prisma.user.findMany({
+        select: { name: true, email: true, phone: true, createdAt: true },
         orderBy: { createdAt: "desc" }
       });
       return userList;

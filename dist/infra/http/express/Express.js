@@ -65,17 +65,26 @@ var ExpressAdapter = class {
 };
 
 // src/core/useCase/CreateUser.ts
+var import_bcryptjs = __toESM(require("bcryptjs"));
 var CreateUserUseCase = class {
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
+      if (!name || !email || !phone || !password) {
+        throw new Error("Preencher todos os campos!");
+      }
+      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
+      if (!numberOfSalt) {
+        throw new Error("senha n\xE3o \xE9 segura");
+      }
+      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
       const user = yield this._userRepository.save({
         name,
         email,
         phone,
-        password
+        password: passwordHash
       });
       return user;
     });
@@ -175,7 +184,7 @@ var prisma = new import_client.PrismaClient();
 var UserRepositorySQL = class {
   save(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
-      prisma.user.create({ data: { name, email, phone, password } });
+      yield prisma.user.create({ data: { name, email, phone, password } });
     });
   }
   findByEmail(email) {
@@ -224,6 +233,7 @@ var UserRepositorySQL = class {
   get() {
     return __async(this, null, function* () {
       const userList = yield prisma.user.findMany({
+        select: { name: true, email: true, phone: true, createdAt: true },
         orderBy: { createdAt: "desc" }
       });
       return userList;
