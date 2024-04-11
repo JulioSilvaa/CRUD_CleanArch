@@ -20,6 +20,11 @@ export default class UserRepositoryInMemory implements UserRepository {
     },
   ];
 
+  findUserById(id: string): Promise<IUserInterface> {
+    const user = this.userList.find((user) => user.id === id);
+    return user;
+  }
+
   async findByEmail(email: string): Promise<IUserInterface> {
     const user = await this.userList.find((user) => user.email === email);
     const userToAdapter = UserAdapter.create(user);

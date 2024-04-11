@@ -3,6 +3,7 @@ import UserRepositorySQL from "./UserRepositorySQL";
 import GetUserByEmail from "src/core/useCase/GetUserByEmail";
 import GetUsers from "src/core/useCase/GetUsers";
 import CreateUserUseCase from "src/core/useCase/CreateUser";
+import GetUserById from "src/core/useCase/GetUserById";
 
 describe("Unit test CreateUseCase", () => {
   const user = {
@@ -23,6 +24,8 @@ describe("Unit test CreateUseCase", () => {
     expect(userFromDB.email).toBe(user.email);
     expect(userFromDB.phone).toBe(user.phone);
   });
+
+  
 
 
   test("should return array with users with same keys as user object", async () => {
@@ -46,6 +49,14 @@ describe("Unit test CreateUseCase", () => {
     const userSql = new UserRepositorySQL();
     const findUserByEmail = new GetUserByEmail(userSql);
     const userDB = await findUserByEmail.execute(user.email);
+    expect(Object.keys(userDB)).toEqual(expect.arrayContaining(Object.keys(user)));
+  });
+ 
+ 
+  test("should get users by id", async () => {
+    const userSql = new UserRepositorySQL();
+    const findUserById = new GetUserById(userSql);
+    const userDB = await findUserById.execute("fadaaab2-948b-4c68-8edb-e9b1bf5dcbd6");
     expect(Object.keys(userDB)).toEqual(expect.arrayContaining(Object.keys(user)));
   });
 
