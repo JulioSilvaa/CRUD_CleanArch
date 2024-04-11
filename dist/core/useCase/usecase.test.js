@@ -15793,6 +15793,9 @@ var UserRepositoryInMemory = class {
       return userToAdapter;
     });
   }
+  update({ name, email, phone, password }) {
+    throw new Error("Method not implemented.");
+  }
   get() {
     return __async(this, null, function* () {
       const users = yield this.userList;

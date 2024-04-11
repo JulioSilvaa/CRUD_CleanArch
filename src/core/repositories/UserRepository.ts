@@ -6,4 +6,5 @@ export default interface UserRepository {
   findByEmail(email: string): Promise<IUserInterface>;
   findUserById(id: string): Promise<IUserInterface>;
   deleteUser(id: any): Promise<void>
+  update(user: IUserInterface, dataBody: any): Promise<void>
 }

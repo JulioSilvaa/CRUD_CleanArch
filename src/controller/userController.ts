@@ -1,5 +1,5 @@
-import { query } from "express";
 import CreateUserUseCase from "src/core/useCase/CreateUser";
+import EditeUser from "src/core/useCase/EditeUser";
 import GetUserByEmail from "src/core/useCase/GetUserByEmail";
 import GetUserById from "src/core/useCase/GetUserById";
 import GetUsers from "src/core/useCase/GetUsers";
@@ -45,8 +45,25 @@ export default class UserController {
         throw new Error("Usuário não encontrado");
       }
       await userSQL.deleteUser(user.id);
-      
+
       return res.status(200).json({ message: "Usuário deletado com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async update(req: any, body: any, res: any, next: any) {
+    try {
+      const { id } = req.params;
+      const userSQL = new UserRepositorySQL();
+      const user = await userSQL.findUserById(id);
+
+      if (!user) {
+        throw new Error("Usuário não encontrado");
+      }
+      const editUser = new EditeUser(userSQL);
+      editUser.execute(user, body);
+      return res.status(200).json({ message: "Usuário atualizado com sucesso!" });
     } catch (error) {
       next(error);
     }
@@ -58,7 +75,7 @@ export default class UserController {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
       const userLista = await user.execute();
-      return res.status(200).json({ data: userLista });
+      return res.status(200).json({ userLista, quantity: userLista.length });
     } catch (error) {
       next(error);
     }

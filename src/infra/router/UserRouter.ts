@@ -10,6 +10,7 @@ router.get("/:id", ExpressAdapter.create(UserController.findUserById));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
 router.post("/", ExpressAdapter.create(UserController.add))
 router.delete("/:id", ExpressAdapter.create(UserController.delete))
+router.patch("/:id", ExpressAdapter.create(UserController.update))
 
 
 
