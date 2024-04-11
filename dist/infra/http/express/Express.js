@@ -82,6 +82,18 @@ var CreateUserUseCase = class {
   }
 };
 
+// src/core/useCase/EditeUser.ts
+var EditeUser = class {
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  execute(user, dataBody) {
+    return __async(this, null, function* () {
+      yield this._userRepository.update(user, dataBody);
+    });
+  }
+};
+
 // src/core/useCase/GetUserByEmail.ts
 var GetUserByEmail = class {
   constructor(userRepository) {
@@ -198,6 +210,12 @@ var UserRepositorySQL = class {
       });
     });
   }
+  update(user, data) {
+    return __async(this, null, function* () {
+      const { id } = user;
+      yield prisma.user.update({ where: { id }, data });
+    });
+  }
   deleteUser(id) {
     return __async(this, null, function* () {
       yield prisma.user.delete({ where: { id } });
@@ -261,13 +279,30 @@ var UserController = class {
       }
     });
   }
+  static update(req, body, res, next) {
+    return __async(this, null, function* () {
+      try {
+        const { id } = req.params;
+        const userSQL = new UserRepositorySQL();
+        const user = yield userSQL.findUserById(id);
+        if (!user) {
+          throw new Error("Usu\xE1rio n\xE3o encontrado");
+        }
+        const editUser = new EditeUser(userSQL);
+        editUser.execute(user, body);
+        return res.status(200).json({ message: "Usu\xE1rio atualizado com sucesso!" });
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
   static getUsers(params, body, res, next) {
     return __async(this, null, function* () {
       try {
         const userSQL = new UserRepositorySQL();
         const user = new GetUsers(userSQL);
         const userLista = yield user.execute();
-        return res.status(200).json({ data: userLista });
+        return res.status(200).json({ userLista, quantity: userLista.length });
       } catch (error) {
         next(error);
       }
@@ -281,6 +316,7 @@ router.get("/:id", ExpressAdapter.create(UserController.findUserById));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
 router.post("/", ExpressAdapter.create(UserController.add));
 router.delete("/:id", ExpressAdapter.create(UserController.delete));
+router.patch("/:id", ExpressAdapter.create(UserController.update));
 var UserRouter_default = router;
 
 // src/infra/http/express/Express.ts

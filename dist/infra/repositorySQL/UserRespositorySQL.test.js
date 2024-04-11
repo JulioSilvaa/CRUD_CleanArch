@@ -15753,6 +15753,12 @@ var UserRepositorySQL = class {
       });
     });
   }
+  update(user, data) {
+    return __async(this, null, function* () {
+      const { id } = user;
+      yield prisma.user.update({ where: { id }, data });
+    });
+  }
   deleteUser(id) {
     return __async(this, null, function* () {
       yield prisma.user.delete({ where: { id } });

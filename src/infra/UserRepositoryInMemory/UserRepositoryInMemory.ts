@@ -36,6 +36,10 @@ export default class UserRepositoryInMemory implements UserRepository {
     return userToAdapter;
   }
 
+  update({ name, email, phone, password }: IUserInterface): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   async get(): Promise<IUserInterface[]> {
     const users = await this.userList;
     return users;
