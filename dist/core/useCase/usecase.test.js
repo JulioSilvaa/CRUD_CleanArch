@@ -15712,17 +15712,26 @@ var GetUsers = class {
 };
 
 // src/core/useCase/CreateUser.ts
+var import_bcryptjs = __toESM(require("bcryptjs"));
 var CreateUserUseCase = class {
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
+      if (!name || !email || !phone || !password) {
+        throw new Error("Preencher todos os campos!");
+      }
+      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
+      if (!numberOfSalt) {
+        throw new Error("senha n\xE3o \xE9 segura");
+      }
+      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
       const user = yield this._userRepository.save({
         name,
         email,
         phone,
-        password
+        password: passwordHash
       });
       return user;
     });

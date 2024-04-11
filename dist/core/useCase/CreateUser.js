@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __async = (__this, __arguments, generator) => {
   return new Promise((resolve, reject) => {
@@ -43,17 +53,26 @@ __export(CreateUser_exports, {
   default: () => CreateUserUseCase
 });
 module.exports = __toCommonJS(CreateUser_exports);
+var import_bcryptjs = __toESM(require("bcryptjs"));
 var CreateUserUseCase = class {
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
   execute(_0) {
     return __async(this, arguments, function* ({ name, email, phone, password }) {
+      if (!name || !email || !phone || !password) {
+        throw new Error("Preencher todos os campos!");
+      }
+      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
+      if (!numberOfSalt) {
+        throw new Error("senha n\xE3o \xE9 segura");
+      }
+      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
       const user = yield this._userRepository.save({
         name,
         email,
         phone,
-        password
+        password: passwordHash
       });
       return user;
     });
