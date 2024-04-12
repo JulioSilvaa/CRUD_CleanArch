@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/core/useCase/EditeUser.ts
 var EditeUser_exports = {};
@@ -44,12 +24,11 @@ __export(EditeUser_exports, {
 });
 module.exports = __toCommonJS(EditeUser_exports);
 var EditeUser = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(user, dataBody) {
-    return __async(this, null, function* () {
-      yield this._userRepository.update(user, dataBody);
-    });
+  async execute(user, dataBody) {
+    await this._userRepository.update(user, dataBody);
   }
 };

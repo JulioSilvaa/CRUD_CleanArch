@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/core/useCase/GetUserById.ts
 var GetUserById_exports = {};
@@ -44,16 +24,15 @@ __export(GetUserById_exports, {
 });
 module.exports = __toCommonJS(GetUserById_exports);
 var GetUserById = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(id) {
-    return __async(this, null, function* () {
-      const user = yield this._userRepository.findUserById(id);
-      if (!user) {
-        throw new Error("Usu\xE1rio n\xE3o cadastrado");
-      }
-      return user;
-    });
+  async execute(id) {
+    const user = await this._userRepository.findUserById(id);
+    if (!user) {
+      throw new Error("Usu\xE1rio n\xE3o cadastrado");
+    }
+    return user;
   }
 };

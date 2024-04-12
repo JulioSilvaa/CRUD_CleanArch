@@ -1,39 +1,10 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b2) => {
-  for (var prop in b2 || (b2 = {}))
-    if (__hasOwnProp.call(b2, prop))
-      __defNormalProp(a, prop, b2[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b2)) {
-      if (__propIsEnum.call(b2, prop))
-        __defNormalProp(a, prop, b2[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b2) => __defProps(a, __getOwnPropDescs(b2));
-var __objRest = (source, exclude) => {
-  var target = {};
-  for (var prop in source)
-    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-      target[prop] = source[prop];
-  if (source != null && __getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(source)) {
-      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-        target[prop] = source[prop];
-    }
-  return target;
-};
 var __esm = (fn2, res) => function __init() {
   return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
 };
@@ -61,30 +32,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve3, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve3(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // node_modules/ansi-styles/index.js
 var require_ansi_styles = __commonJS({
@@ -193,7 +140,7 @@ var require_ansi_styles = __commonJS({
         },
         hexToRgb: {
           value: (hex2) => {
-            const matches = new RegExp("(?<colorString>[a-f\\d]{6}|[a-f\\d]{3})", "i").exec(hex2.toString(16));
+            const matches = /(?<colorString>[a-f\d]{6}|[a-f\d]{3})/i.exec(hex2.toString(16));
             if (!matches) {
               return [0, 0, 0];
             }
@@ -449,7 +396,9 @@ var require_DOMCollection = __commonJS({
         isNamedNodeMap(collection) ? Array.from(collection).reduce((props, attribute) => {
           props[attribute.name] = attribute.value;
           return props;
-        }, {}) : __spreadValues({}, collection),
+        }, {}) : {
+          ...collection
+        },
         config2,
         indentation,
         depth,
@@ -560,7 +509,7 @@ var require_DOMElement = __commonJS({
     var testHasAttribute = (val) => {
       try {
         return typeof val.hasAttribute === "function" && val.hasAttribute("is");
-      } catch (e) {
+      } catch {
         return false;
       }
     };
@@ -570,10 +519,7 @@ var require_DOMElement = __commonJS({
       const isCustomElement = typeof tagName === "string" && tagName.includes("-") || testHasAttribute(val);
       return nodeType === ELEMENT_NODE && (ELEMENT_REGEXP.test(constructorName) || isCustomElement) || nodeType === TEXT_NODE && constructorName === "Text" || nodeType === COMMENT_NODE && constructorName === "Comment" || nodeType === FRAGMENT_NODE && constructorName === "DocumentFragment";
     };
-    var test3 = (val) => {
-      var _a2;
-      return ((_a2 = val == null ? void 0 : val.constructor) == null ? void 0 : _a2.name) && testNode(val);
-    };
+    var test3 = (val) => val?.constructor?.name && testNode(val);
     exports2.test = test3;
     function nodeIsText(node) {
       return node.nodeType === TEXT_NODE;
@@ -1587,37 +1533,25 @@ ${indentationNext}`);
       };
       return colors;
     }, /* @__PURE__ */ Object.create(null));
-    var getPrintFunctionName = (options) => {
-      var _a2;
-      return (_a2 = options == null ? void 0 : options.printFunctionName) != null ? _a2 : DEFAULT_OPTIONS.printFunctionName;
-    };
-    var getEscapeRegex = (options) => {
-      var _a2;
-      return (_a2 = options == null ? void 0 : options.escapeRegex) != null ? _a2 : DEFAULT_OPTIONS.escapeRegex;
-    };
-    var getEscapeString = (options) => {
-      var _a2;
-      return (_a2 = options == null ? void 0 : options.escapeString) != null ? _a2 : DEFAULT_OPTIONS.escapeString;
-    };
-    var getConfig = (options) => {
-      var _a2, _b, _c, _d, _e, _f, _g;
-      return {
-        callToJSON: (_a2 = options == null ? void 0 : options.callToJSON) != null ? _a2 : DEFAULT_OPTIONS.callToJSON,
-        colors: (options == null ? void 0 : options.highlight) ? getColorsHighlight(options) : getColorsEmpty(),
-        compareKeys: typeof (options == null ? void 0 : options.compareKeys) === "function" || (options == null ? void 0 : options.compareKeys) === null ? options.compareKeys : DEFAULT_OPTIONS.compareKeys,
-        escapeRegex: getEscapeRegex(options),
-        escapeString: getEscapeString(options),
-        indent: (options == null ? void 0 : options.min) ? "" : createIndent((_b = options == null ? void 0 : options.indent) != null ? _b : DEFAULT_OPTIONS.indent),
-        maxDepth: (_c = options == null ? void 0 : options.maxDepth) != null ? _c : DEFAULT_OPTIONS.maxDepth,
-        maxWidth: (_d = options == null ? void 0 : options.maxWidth) != null ? _d : DEFAULT_OPTIONS.maxWidth,
-        min: (_e = options == null ? void 0 : options.min) != null ? _e : DEFAULT_OPTIONS.min,
-        plugins: (_f = options == null ? void 0 : options.plugins) != null ? _f : DEFAULT_OPTIONS.plugins,
-        printBasicPrototype: (_g = options == null ? void 0 : options.printBasicPrototype) != null ? _g : true,
-        printFunctionName: getPrintFunctionName(options),
-        spacingInner: (options == null ? void 0 : options.min) ? " " : "\n",
-        spacingOuter: (options == null ? void 0 : options.min) ? "" : "\n"
-      };
-    };
+    var getPrintFunctionName = (options) => options?.printFunctionName ?? DEFAULT_OPTIONS.printFunctionName;
+    var getEscapeRegex = (options) => options?.escapeRegex ?? DEFAULT_OPTIONS.escapeRegex;
+    var getEscapeString = (options) => options?.escapeString ?? DEFAULT_OPTIONS.escapeString;
+    var getConfig = (options) => ({
+      callToJSON: options?.callToJSON ?? DEFAULT_OPTIONS.callToJSON,
+      colors: options?.highlight ? getColorsHighlight(options) : getColorsEmpty(),
+      compareKeys: typeof options?.compareKeys === "function" || options?.compareKeys === null ? options.compareKeys : DEFAULT_OPTIONS.compareKeys,
+      escapeRegex: getEscapeRegex(options),
+      escapeString: getEscapeString(options),
+      indent: options?.min ? "" : createIndent(options?.indent ?? DEFAULT_OPTIONS.indent),
+      maxDepth: options?.maxDepth ?? DEFAULT_OPTIONS.maxDepth,
+      maxWidth: options?.maxWidth ?? DEFAULT_OPTIONS.maxWidth,
+      min: options?.min ?? DEFAULT_OPTIONS.min,
+      plugins: options?.plugins ?? DEFAULT_OPTIONS.plugins,
+      printBasicPrototype: options?.printBasicPrototype ?? true,
+      printFunctionName: getPrintFunctionName(options),
+      spacingInner: options?.min ? " " : "\n",
+      spacingOuter: options?.min ? "" : "\n"
+    });
     function createIndent(indent) {
       return new Array(indent + 1).join(" ");
     }
@@ -7010,7 +6944,7 @@ var init_magic_string_es = __esm({
       }
       overwrite(start, end, content, options) {
         options = options || {};
-        return this.update(start, end, content, __spreadProps(__spreadValues({}, options), { overwrite: !options.contentOnly }));
+        return this.update(start, end, content, { ...options, overwrite: !options.contentOnly });
       }
       update(start, end, content, options) {
         if (typeof content !== "string")
@@ -7726,16 +7660,18 @@ function clone(val, seen, options = defaultCloneOptions) {
         continue;
       const cloned = clone(val[k22], seen, options);
       if ("get" in descriptor) {
-        Object.defineProperty(out, k22, __spreadProps(__spreadValues({}, descriptor), {
+        Object.defineProperty(out, k22, {
+          ...descriptor,
           get() {
             return cloned;
           }
-        }));
+        });
       } else {
-        Object.defineProperty(out, k22, __spreadProps(__spreadValues({}, descriptor), {
+        Object.defineProperty(out, k22, {
+          ...descriptor,
           writable: options.forceWritable ? true : descriptor.writable,
           value: cloned
-        }));
+        });
       }
     }
     return out;
@@ -7785,25 +7721,26 @@ var PLUGINS = [
   Immutable,
   AsymmetricMatcher
 ];
-function stringify(object2, maxDepth = 10, _a2 = {}) {
-  var _b = _a2, { maxLength } = _b, options = __objRest(_b, ["maxLength"]);
-  const MAX_LENGTH = maxLength != null ? maxLength : 1e4;
+function stringify(object2, maxDepth = 10, { maxLength, ...options } = {}) {
+  const MAX_LENGTH = maxLength ?? 1e4;
   let result;
   try {
-    result = (0, import_pretty_format.format)(object2, __spreadValues({
+    result = (0, import_pretty_format.format)(object2, {
       maxDepth,
       escapeString: false,
       // min: true,
-      plugins: PLUGINS
-    }, options));
-  } catch (e) {
-    result = (0, import_pretty_format.format)(object2, __spreadValues({
+      plugins: PLUGINS,
+      ...options
+    });
+  } catch {
+    result = (0, import_pretty_format.format)(object2, {
       callToJSON: false,
       maxDepth,
       escapeString: false,
       // min: true,
-      plugins: PLUGINS
-    }, options));
+      plugins: PLUGINS,
+      ...options
+    });
   }
   return result.length >= MAX_LENGTH && maxDepth > 1 ? stringify(object2, Math.floor(maxDepth / 2)) : result;
 }
@@ -8119,9 +8056,9 @@ var DIFF_DELETE = -1;
 var DIFF_INSERT = 1;
 var DIFF_EQUAL = 0;
 var Diff = class {
+  0;
+  1;
   constructor(op, text) {
-    __publicField(this, 0);
-    __publicField(this, 1);
     this[0] = op;
     this[1] = text;
   }
@@ -8358,10 +8295,12 @@ function getContextLines(contextLines) {
   return typeof contextLines === "number" && Number.isSafeInteger(contextLines) && contextLines >= 0 ? contextLines : DIFF_CONTEXT_DEFAULT;
 }
 function normalizeDiffOptions(options = {}) {
-  return __spreadProps(__spreadValues(__spreadValues({}, getDefaultOptions()), options), {
+  return {
+    ...getDefaultOptions(),
+    ...options,
     compareKeys: getCompareKeys(options.compareKeys),
     contextLines: getContextLines(options.contextLines)
-  });
+  };
 }
 function isEmptyString(lines) {
   return lines.length === 1 && lines[0].length === 0;
@@ -8572,7 +8511,7 @@ function compareObjects(a, b2, options) {
   try {
     const formatOptions = getFormatOptions(FORMAT_OPTIONS, options);
     difference = getObjectsDifference(a, b2, formatOptions, options);
-  } catch (e) {
+  } catch {
     hasThrown = true;
   }
   const noDiffMessage = getCommonMessage(NO_DIFF_MESSAGE, options);
@@ -8592,12 +8531,13 @@ ${difference}`;
 }
 function getFormatOptions(formatOptions, options) {
   const { compareKeys } = normalizeDiffOptions(options);
-  return __spreadProps(__spreadValues({}, formatOptions), {
+  return {
+    ...formatOptions,
     compareKeys
-  });
+  };
 }
 function getObjectsDifference(a, b2, formatOptions, options) {
-  const formatOptionsZeroIndent = __spreadProps(__spreadValues({}, formatOptions), { indent: 0 });
+  const formatOptionsZeroIndent = { ...formatOptions, indent: 0 };
   const aCompare = (0, import_pretty_format3.format)(a, formatOptionsZeroIndent);
   const bCompare = (0, import_pretty_format3.format)(b2, formatOptionsZeroIndent);
   if (aCompare === bCompare) {
@@ -8696,7 +8636,7 @@ function processError(err, diffOptions) {
     const clonedActual = deepClone(err.actual, { forceWritable: true });
     const clonedExpected = deepClone(err.expected, { forceWritable: true });
     const { replacedActual, replacedExpected } = replaceAsymmetricMatcher(clonedActual, clonedExpected);
-    err.diff = diff(replacedExpected, replacedActual, __spreadValues(__spreadValues({}, diffOptions), err.diffOptions));
+    err.diff = diff(replacedExpected, replacedActual, { ...diffOptions, ...err.diffOptions });
   }
   if (typeof err.expected !== "string")
     err.expected = stringify(err.expected, 10);
@@ -8707,7 +8647,7 @@ function processError(err, diffOptions) {
       err.message = normalizeErrorMessage(err.message);
     if (typeof err.cause === "object" && typeof err.cause.message === "string")
       err.cause.message = normalizeErrorMessage(err.cause.message);
-  } catch (e) {
+  } catch {
   }
   try {
     return serializeError(err);
@@ -8775,7 +8715,7 @@ function createChainable(keys2, fn2) {
     for (const key of keys2) {
       Object.defineProperty(chain2, key, {
         get() {
-          return create(__spreadProps(__spreadValues({}, context), { [key]: true }));
+          return create({ ...context, [key]: true });
         }
       });
     }
@@ -9364,11 +9304,11 @@ function getHooks(key) {
 var PendingError = class extends Error {
   constructor(message, task) {
     super(message);
-    __publicField(this, "code", "VITEST_PENDING");
-    __publicField(this, "taskId");
     this.message = message;
     this.taskId = task.id;
   }
+  code = "VITEST_PENDING";
+  taskId;
 };
 var collectorContext = {
   tasks: [],
@@ -9378,13 +9318,11 @@ function collectTask(task) {
   var _a2;
   (_a2 = collectorContext.currentSuite) == null ? void 0 : _a2.tasks.push(task);
 }
-function runWithSuite(suite2, fn2) {
-  return __async(this, null, function* () {
-    const prev = collectorContext.currentSuite;
-    collectorContext.currentSuite = suite2;
-    yield fn2();
-    collectorContext.currentSuite = prev;
-  });
+async function runWithSuite(suite2, fn2) {
+  const prev = collectorContext.currentSuite;
+  collectorContext.currentSuite = suite2;
+  await fn2();
+  collectorContext.currentSuite = prev;
 }
 function withTimeout(fn2, timeout, isHook = false) {
   if (timeout <= 0 || timeout === Number.POSITIVE_INFINITY)
@@ -9474,45 +9412,41 @@ function withFixtures(fn2, testContext) {
     const pendingFixtures = resolveDeps(usedFixtures);
     if (!pendingFixtures.length)
       return fn2(context);
-    function resolveFixtures() {
-      return __async(this, null, function* () {
-        for (const fixture of pendingFixtures) {
-          if (fixtureValueMap.has(fixture))
-            continue;
-          const resolvedValue = fixture.isFn ? yield resolveFixtureFunction(fixture.value, context, cleanupFnArray) : fixture.value;
-          context[fixture.prop] = resolvedValue;
-          fixtureValueMap.set(fixture, resolvedValue);
-          cleanupFnArray.unshift(() => {
-            fixtureValueMap.delete(fixture);
-          });
-        }
-      });
+    async function resolveFixtures() {
+      for (const fixture of pendingFixtures) {
+        if (fixtureValueMap.has(fixture))
+          continue;
+        const resolvedValue = fixture.isFn ? await resolveFixtureFunction(fixture.value, context, cleanupFnArray) : fixture.value;
+        context[fixture.prop] = resolvedValue;
+        fixtureValueMap.set(fixture, resolvedValue);
+        cleanupFnArray.unshift(() => {
+          fixtureValueMap.delete(fixture);
+        });
+      }
     }
     return resolveFixtures().then(() => fn2(context));
   };
 }
-function resolveFixtureFunction(fixtureFn, context, cleanupFnArray) {
-  return __async(this, null, function* () {
-    const useFnArgPromise = createDefer();
-    let isUseFnArgResolved = false;
-    const fixtureReturn = fixtureFn(context, (useFnArg) => __async(this, null, function* () {
-      isUseFnArgResolved = true;
-      useFnArgPromise.resolve(useFnArg);
-      const useReturnPromise = createDefer();
-      cleanupFnArray.push(() => __async(this, null, function* () {
-        useReturnPromise.resolve();
-        yield fixtureReturn;
-      }));
-      yield useReturnPromise;
-    })).catch((e) => {
-      if (!isUseFnArgResolved) {
-        useFnArgPromise.reject(e);
-        return;
-      }
-      throw e;
+async function resolveFixtureFunction(fixtureFn, context, cleanupFnArray) {
+  const useFnArgPromise = createDefer();
+  let isUseFnArgResolved = false;
+  const fixtureReturn = fixtureFn(context, async (useFnArg) => {
+    isUseFnArgResolved = true;
+    useFnArgPromise.resolve(useFnArg);
+    const useReturnPromise = createDefer();
+    cleanupFnArray.push(async () => {
+      useReturnPromise.resolve();
+      await fixtureReturn;
     });
-    return useFnArgPromise;
+    await useReturnPromise;
+  }).catch((e) => {
+    if (!isUseFnArgResolved) {
+      useFnArgPromise.reject(e);
+      return;
+    }
+    throw e;
   });
+  return useFnArgPromise;
 }
 function resolveDeps(fixtures, depSet = /* @__PURE__ */ new Set(), pendingFixtures = []) {
   fixtures.forEach((fixture) => {
@@ -9637,7 +9571,6 @@ function createSuiteCollector(name, factory = () => {
   let suite2;
   initSuite(true);
   const task = function(name2 = "", options = {}) {
-    var _a2, _b, _c, _d;
     const task2 = {
       id: "",
       name: name2,
@@ -9646,10 +9579,10 @@ function createSuiteCollector(name, factory = () => {
       fails: options.fails,
       context: void 0,
       type: "custom",
-      retry: (_a2 = options.retry) != null ? _a2 : runner.config.retry,
+      retry: options.retry ?? runner.config.retry,
       repeats: options.repeats,
       mode: options.only ? "only" : options.skip ? "skip" : options.todo ? "todo" : "run",
-      meta: (_b = options.meta) != null ? _b : /* @__PURE__ */ Object.create(null)
+      meta: options.meta ?? /* @__PURE__ */ Object.create(null)
     };
     const handler = options.handler;
     if (options.concurrent || !options.sequential && runner.config.sequence.concurrent)
@@ -9665,7 +9598,7 @@ function createSuiteCollector(name, factory = () => {
     if (handler) {
       setFn(task2, withTimeout(
         withFixtures(handler, context),
-        (_c = options == null ? void 0 : options.timeout) != null ? _c : runner.config.testTimeout
+        (options == null ? void 0 : options.timeout) ?? runner.config.testTimeout
       ));
     }
     if (runner.config.includeTaskLocation) {
@@ -9673,7 +9606,7 @@ function createSuiteCollector(name, factory = () => {
       Error.stackTraceLimit = 10;
       const error = new Error("stacktrace").stack;
       Error.stackTraceLimit = limit;
-      const stack = findStackTrace(error, (_d = task2.each) != null ? _d : false);
+      const stack = findStackTrace(error, task2.each ?? false);
       if (stack)
         task2.location = stack;
     }
@@ -9691,7 +9624,7 @@ function createSuiteCollector(name, factory = () => {
     options.sequential = this.sequential || !this.concurrent && (options == null ? void 0 : options.sequential);
     const test3 = task(
       formatName(name2),
-      __spreadProps(__spreadValues(__spreadValues({}, this), options), { handler })
+      { ...this, ...options, handler }
     );
     test3.type = "test";
   });
@@ -9746,23 +9679,21 @@ function createSuiteCollector(name, factory = () => {
     factoryQueue.length = 0;
     initSuite(false);
   }
-  function collect(file) {
-    return __async(this, null, function* () {
-      factoryQueue.length = 0;
-      if (factory)
-        yield runWithSuite(collector, () => factory(test22));
-      const allChildren = [];
-      for (const i2 of [...factoryQueue, ...tasks])
-        allChildren.push(i2.type === "collector" ? yield i2.collect(file) : i2);
-      suite2.file = file;
-      suite2.tasks = allChildren;
-      allChildren.forEach((task2) => {
-        task2.suite = suite2;
-        if (file)
-          task2.file = file;
-      });
-      return suite2;
+  async function collect(file) {
+    factoryQueue.length = 0;
+    if (factory)
+      await runWithSuite(collector, () => factory(test22));
+    const allChildren = [];
+    for (const i2 of [...factoryQueue, ...tasks])
+      allChildren.push(i2.type === "collector" ? await i2.collect(file) : i2);
+    suite2.file = file;
+    suite2.tasks = allChildren;
+    allChildren.forEach((task2) => {
+      task2.suite = suite2;
+      if (file)
+        task2.file = file;
     });
+    return suite2;
   }
   collectTask(collector);
   return collector;
@@ -9776,7 +9707,7 @@ function createSuite() {
       optionsOrFactory
     );
     if (currentSuite == null ? void 0 : currentSuite.options)
-      options = __spreadValues(__spreadValues({}, currentSuite.options), options);
+      options = { ...currentSuite.options, ...options };
     options.concurrent = this.concurrent || !this.sequential && (options == null ? void 0 : options.concurrent);
     options.sequential = this.sequential || !this.concurrent && (options == null ? void 0 : options.sequential);
     return createSuiteCollector(formatName(name), factory, mode, this.shuffle, this.each, options);
@@ -9907,16 +9838,16 @@ function getDefaultHookTimeout() {
   return getRunner().config.hookTimeout;
 }
 function beforeAll(fn2, timeout) {
-  return getCurrentSuite().on("beforeAll", withTimeout(fn2, timeout != null ? timeout : getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("beforeAll", withTimeout(fn2, timeout ?? getDefaultHookTimeout(), true));
 }
 function afterAll(fn2, timeout) {
-  return getCurrentSuite().on("afterAll", withTimeout(fn2, timeout != null ? timeout : getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("afterAll", withTimeout(fn2, timeout ?? getDefaultHookTimeout(), true));
 }
 function beforeEach(fn2, timeout) {
-  return getCurrentSuite().on("beforeEach", withTimeout(withFixtures(fn2), timeout != null ? timeout : getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("beforeEach", withTimeout(withFixtures(fn2), timeout ?? getDefaultHookTimeout(), true));
 }
 function afterEach(fn2, timeout) {
-  return getCurrentSuite().on("afterEach", withTimeout(withFixtures(fn2), timeout != null ? timeout : getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("afterEach", withTimeout(withFixtures(fn2), timeout ?? getDefaultHookTimeout(), true));
 }
 var onTestFailed = createTestHook("onTestFailed", (test3, handler) => {
   test3.onFailed || (test3.onFailed = []);
@@ -9967,11 +9898,12 @@ var bench = createBenchmark(
   function(name, fn2 = noop, options = {}) {
     if (!isRunningInBenchmark())
       throw new Error("`bench()` is only available in benchmark mode.");
-    const task = getCurrentSuite().task(formatName2(name), __spreadProps(__spreadValues({}, this), {
+    const task = getCurrentSuite().task(formatName2(name), {
+      ...this,
       meta: {
         benchmark: true
       }
-    }));
+    });
     benchFns.set(task, fn2);
     benchOptsMap.set(task, options);
   }
@@ -10127,10 +10059,10 @@ function E(e, t, n2) {
   let y = I(n2);
   r === "value" && P(y, o);
   let O = (h) => {
-    let _a2 = a || {
+    let { value: G, ...w } = a || {
       configurable: true,
       writable: true
-    }, { value: G } = _a2, w = __objRest(_a2, ["value"]);
+    };
     r !== "value" && delete w.writable, w[r] = h, f(e, s, w);
   }, K = () => a ? f(e, s, a) : O(o), T = y[c];
   return i(T, "restore", K), i(T, "getOriginal", () => l ? o() : o), i(T, "willCall", (h) => (T.impl = h, y)), O(l ? () => (P(y, n2), y) : y), g.add(y), y;
@@ -10634,7 +10566,7 @@ function arrayBufferEquality(a, b2) {
     try {
       dataViewA = new DataView(a);
       dataViewB = new DataView(b2);
-    } catch (e) {
+    } catch {
       return void 0;
     }
   }
@@ -10671,23 +10603,25 @@ function pluralize(word, count) {
 }
 var AsymmetricMatcher3 = class {
   constructor(sample, inverse = false) {
-    // should have "jest" to be compatible with its ecosystem
-    __publicField(this, "$$typeof", Symbol.for("jest.asymmetricMatcher"));
     this.sample = sample;
     this.inverse = inverse;
   }
+  // should have "jest" to be compatible with its ecosystem
+  $$typeof = Symbol.for("jest.asymmetricMatcher");
   getMatcherContext(expect3) {
-    return __spreadProps(__spreadValues({}, getState(expect3 || globalThis[GLOBAL_EXPECT])), {
+    return {
+      ...getState(expect3 || globalThis[GLOBAL_EXPECT]),
       equals,
       isNot: this.inverse,
       customTesters: getCustomEqualityTesters(),
-      utils: __spreadProps(__spreadValues({}, getMatcherUtils()), {
+      utils: {
+        ...getMatcherUtils(),
         diff,
         stringify,
         iterableEquality,
         subsetEquality
-      })
-    });
+      }
+    };
   }
   // implement custom chai/loupe inspect for better AssertionError.message formatting
   // https://github.com/chaijs/loupe/blob/9b8a6deabcd50adc056a64fb705896194710c5c6/src/index.ts#L29
@@ -10861,13 +10795,13 @@ var StringMatching = class extends AsymmetricMatcher3 {
   }
 };
 var CloseTo = class extends AsymmetricMatcher3 {
+  precision;
   constructor(sample, precision = 2, inverse = false) {
     if (!isA("Number", sample))
       throw new Error("Expected is not a Number");
     if (!isA("Number", precision))
       throw new Error("Precision is not a Number");
     super(sample);
-    __publicField(this, "precision");
     this.inverse = inverse;
     this.precision = precision;
   }
@@ -11620,7 +11554,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
         const result = Reflect.get(target, key, receiver);
         if (typeof result !== "function")
           return result instanceof chai3.Assertion ? proxy : result;
-        return (...args) => __async(this, null, function* () {
+        return async (...args) => {
           const promise = obj.then(
             (value) => {
               utils.flag(this, "object", value);
@@ -11637,7 +11571,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
             }
           );
           return recordAsyncExpect(test3, promise);
-        });
+        };
       }
     });
     return proxy;
@@ -11656,7 +11590,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
         const result = Reflect.get(target, key, receiver);
         if (typeof result !== "function")
           return result instanceof chai3.Assertion ? proxy : result;
-        return (...args) => __async(this, null, function* () {
+        return async (...args) => {
           const promise = wrapper.then(
             (value) => {
               const _error = new AssertionError2(
@@ -11672,7 +11606,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
             }
           );
           return recordAsyncExpect(test3, promise);
-        });
+        };
       }
     });
     return proxy;
@@ -11682,13 +11616,15 @@ function getMatcherState(assertion, expect3) {
   const obj = assertion._obj;
   const isNot = util.flag(assertion, "negate");
   const promise = util.flag(assertion, "promise") || "";
-  const jestUtils = __spreadProps(__spreadValues({}, getMatcherUtils()), {
+  const jestUtils = {
+    ...getMatcherUtils(),
     diff,
     stringify,
     iterableEquality,
     subsetEquality
-  });
-  const matcherState = __spreadProps(__spreadValues({}, getState(expect3)), {
+  };
+  const matcherState = {
+    ...getState(expect3),
     customTesters: getCustomEqualityTesters(),
     isNot,
     utils: jestUtils,
@@ -11696,7 +11632,7 @@ function getMatcherState(assertion, expect3) {
     equals,
     // needed for built-in jest-snapshots, but we don't use it
     suppressedErrors: []
-  });
+  };
   return {
     state: matcherState,
     isNot,
@@ -12012,7 +11948,7 @@ function getSnapshotData(content, options) {
       snapshotContents = content;
       const populate = new Function("exports", snapshotContents);
       populate(data);
-    } catch (e) {
+    } catch {
     }
   }
   const isInvalid = snapshotContents;
@@ -12032,12 +11968,13 @@ var escapeRegex = true;
 var printFunctionName = false;
 function serialize(val, indent = 2, formatOverrides = {}) {
   return normalizeNewlines(
-    (0, import_pretty_format5.format)(val, __spreadValues({
+    (0, import_pretty_format5.format)(val, {
       escapeRegex,
       indent,
       plugins: getSerializers(),
-      printFunctionName
-    }, formatOverrides))
+      printFunctionName,
+      ...formatOverrides
+    })
   );
 }
 function escapeBacktickString(str) {
@@ -12049,24 +11986,22 @@ function printBacktickString(str) {
 function normalizeNewlines(string3) {
   return string3.replace(/\r\n|\r/g, "\n");
 }
-function saveSnapshotFile(environment, snapshotData, snapshotPath) {
-  return __async(this, null, function* () {
-    const snapshots = Object.keys(snapshotData).sort(naturalCompare$1).map(
-      (key) => `exports[${printBacktickString(key)}] = ${printBacktickString(normalizeNewlines(snapshotData[key]))};`
-    );
-    const content = `${environment.getHeader()}
+async function saveSnapshotFile(environment, snapshotData, snapshotPath) {
+  const snapshots = Object.keys(snapshotData).sort(naturalCompare$1).map(
+    (key) => `exports[${printBacktickString(key)}] = ${printBacktickString(normalizeNewlines(snapshotData[key]))};`
+  );
+  const content = `${environment.getHeader()}
 
 ${snapshots.join("\n\n")}
 `;
-    const oldContent = yield environment.readSnapshotFile(snapshotPath);
-    const skipWriting = oldContent != null && oldContent === content;
-    if (skipWriting)
-      return;
-    yield environment.saveSnapshotFile(
-      snapshotPath,
-      content
-    );
-  });
+  const oldContent = await environment.readSnapshotFile(snapshotPath);
+  const skipWriting = oldContent != null && oldContent === content;
+  if (skipWriting)
+    return;
+  await environment.saveSnapshotFile(
+    snapshotPath,
+    content
+  );
 }
 function prepareExpected(expected) {
   function findStartIndent() {
@@ -12101,7 +12036,7 @@ function deepMergeArray(target = [], source = []) {
 }
 function deepMergeSnapshot(target, source) {
   if (isObject3(target) && isObject3(source)) {
-    const mergedOutput = __spreadValues({}, target);
+    const mergedOutput = { ...target };
     Object.keys(source).forEach((key) => {
       if (isObject3(source[key]) && !source[key].$$typeof) {
         if (!(key in target))
@@ -12646,7 +12581,7 @@ function parseStacktrace(stack, options = {}) {
     const traceMap = new TraceMap(map2);
     const { line, column } = originalPositionFor2(traceMap, stack2);
     if (line != null && column != null)
-      return __spreadProps(__spreadValues({}, stack2), { line, column });
+      return { ...stack2, line, column };
     return stack2;
   });
 }
@@ -12668,23 +12603,21 @@ function parseErrorStacktrace(e, options = {}) {
   e.stacks = stackFrames;
   return stackFrames;
 }
-function saveInlineSnapshots(environment, snapshots) {
-  return __async(this, null, function* () {
-    const MagicString2 = (yield Promise.resolve().then(() => (init_magic_string_es(), magic_string_es_exports))).default;
-    const files = new Set(snapshots.map((i2) => i2.file));
-    yield Promise.all(Array.from(files).map((file) => __async(this, null, function* () {
-      const snaps = snapshots.filter((i2) => i2.file === file);
-      const code = yield environment.readSnapshotFile(file);
-      const s = new MagicString2(code);
-      for (const snap of snaps) {
-        const index = positionToOffset(code, snap.line, snap.column);
-        replaceInlineSnap(code, s, index, snap.snapshot);
-      }
-      const transformed = s.toString();
-      if (transformed !== code)
-        yield environment.saveSnapshotFile(file, transformed);
-    })));
-  });
+async function saveInlineSnapshots(environment, snapshots) {
+  const MagicString2 = (await Promise.resolve().then(() => (init_magic_string_es(), magic_string_es_exports))).default;
+  const files = new Set(snapshots.map((i2) => i2.file));
+  await Promise.all(Array.from(files).map(async (file) => {
+    const snaps = snapshots.filter((i2) => i2.file === file);
+    const code = await environment.readSnapshotFile(file);
+    const s = new MagicString2(code);
+    for (const snap of snaps) {
+      const index = positionToOffset(code, snap.line, snap.column);
+      replaceInlineSnap(code, s, index, snap.snapshot);
+    }
+    const transformed = s.toString();
+    if (transformed !== code)
+      await environment.saveSnapshotFile(file, transformed);
+  }));
 }
 var startObjectRegex = /(?:toMatchInlineSnapshot|toThrowErrorMatchingInlineSnapshot)\s*\(\s*(?:\/\*[\S\s]*\*\/\s*|\/\/.*\s+)*\s*({)/m;
 function replaceObjectSnap(code, s, index, newSnap) {
@@ -12781,32 +12714,14 @@ function stripSnapshotIndentation(inlineSnapshot) {
   inlineSnapshot = lines.join("\n");
   return inlineSnapshot;
 }
-function saveRawSnapshots(environment, snapshots) {
-  return __async(this, null, function* () {
-    yield Promise.all(snapshots.map((snap) => __async(this, null, function* () {
-      if (!snap.readonly)
-        yield environment.saveSnapshotFile(snap.file, snap.snapshot);
-    })));
-  });
+async function saveRawSnapshots(environment, snapshots) {
+  await Promise.all(snapshots.map(async (snap) => {
+    if (!snap.readonly)
+      await environment.saveSnapshotFile(snap.file, snap.snapshot);
+  }));
 }
 var SnapshotState = class _SnapshotState {
   constructor(testFilePath, snapshotPath, snapshotContent, options) {
-    __publicField(this, "_counters");
-    __publicField(this, "_dirty");
-    __publicField(this, "_updateSnapshot");
-    __publicField(this, "_snapshotData");
-    __publicField(this, "_initialData");
-    __publicField(this, "_inlineSnapshots");
-    __publicField(this, "_rawSnapshots");
-    __publicField(this, "_uncheckedKeys");
-    __publicField(this, "_snapshotFormat");
-    __publicField(this, "_environment");
-    __publicField(this, "_fileExists");
-    __publicField(this, "added");
-    __publicField(this, "expand");
-    __publicField(this, "matched");
-    __publicField(this, "unmatched");
-    __publicField(this, "updated");
     this.testFilePath = testFilePath;
     this.snapshotPath = snapshotPath;
     const { data, dirty } = getSnapshotData(
@@ -12827,18 +12742,33 @@ var SnapshotState = class _SnapshotState {
     this.unmatched = 0;
     this._updateSnapshot = options.updateSnapshot;
     this.updated = 0;
-    this._snapshotFormat = __spreadValues({
+    this._snapshotFormat = {
       printBasicPrototype: false,
-      escapeString: false
-    }, options.snapshotFormat);
+      escapeString: false,
+      ...options.snapshotFormat
+    };
     this._environment = options.snapshotEnvironment;
   }
-  static create(testFilePath, options) {
-    return __async(this, null, function* () {
-      const snapshotPath = yield options.snapshotEnvironment.resolvePath(testFilePath);
-      const content = yield options.snapshotEnvironment.readSnapshotFile(snapshotPath);
-      return new _SnapshotState(testFilePath, snapshotPath, content, options);
-    });
+  _counters;
+  _dirty;
+  _updateSnapshot;
+  _snapshotData;
+  _initialData;
+  _inlineSnapshots;
+  _rawSnapshots;
+  _uncheckedKeys;
+  _snapshotFormat;
+  _environment;
+  _fileExists;
+  added;
+  expand;
+  matched;
+  unmatched;
+  updated;
+  static async create(testFilePath, options) {
+    const snapshotPath = await options.snapshotEnvironment.resolvePath(testFilePath);
+    const content = await options.snapshotEnvironment.readSnapshotFile(snapshotPath);
+    return new _SnapshotState(testFilePath, snapshotPath, content, options);
   }
   get environment() {
     return this._environment;
@@ -12868,13 +12798,15 @@ ${JSON.stringify(stacks)}`
         );
       }
       stack.column--;
-      this._inlineSnapshots.push(__spreadValues({
-        snapshot: receivedSerialized
-      }, stack));
+      this._inlineSnapshots.push({
+        snapshot: receivedSerialized,
+        ...stack
+      });
     } else if (options.rawSnapshot) {
-      this._rawSnapshots.push(__spreadProps(__spreadValues({}, options.rawSnapshot), {
+      this._rawSnapshots.push({
+        ...options.rawSnapshot,
         snapshot: receivedSerialized
-      }));
+      });
     } else {
       this._snapshotData[key] = receivedSerialized;
     }
@@ -12888,35 +12820,33 @@ ${JSON.stringify(stacks)}`
     this.updated = 0;
     this._dirty = false;
   }
-  save() {
-    return __async(this, null, function* () {
-      const hasExternalSnapshots = Object.keys(this._snapshotData).length;
-      const hasInlineSnapshots = this._inlineSnapshots.length;
-      const hasRawSnapshots = this._rawSnapshots.length;
-      const isEmpty = !hasExternalSnapshots && !hasInlineSnapshots && !hasRawSnapshots;
-      const status = {
-        deleted: false,
-        saved: false
-      };
-      if ((this._dirty || this._uncheckedKeys.size) && !isEmpty) {
-        if (hasExternalSnapshots) {
-          yield saveSnapshotFile(this._environment, this._snapshotData, this.snapshotPath);
-          this._fileExists = true;
-        }
-        if (hasInlineSnapshots)
-          yield saveInlineSnapshots(this._environment, this._inlineSnapshots);
-        if (hasRawSnapshots)
-          yield saveRawSnapshots(this._environment, this._rawSnapshots);
-        status.saved = true;
-      } else if (!hasExternalSnapshots && this._fileExists) {
-        if (this._updateSnapshot === "all") {
-          yield this._environment.removeSnapshotFile(this.snapshotPath);
-          this._fileExists = false;
-        }
-        status.deleted = true;
+  async save() {
+    const hasExternalSnapshots = Object.keys(this._snapshotData).length;
+    const hasInlineSnapshots = this._inlineSnapshots.length;
+    const hasRawSnapshots = this._rawSnapshots.length;
+    const isEmpty = !hasExternalSnapshots && !hasInlineSnapshots && !hasRawSnapshots;
+    const status = {
+      deleted: false,
+      saved: false
+    };
+    if ((this._dirty || this._uncheckedKeys.size) && !isEmpty) {
+      if (hasExternalSnapshots) {
+        await saveSnapshotFile(this._environment, this._snapshotData, this.snapshotPath);
+        this._fileExists = true;
       }
-      return status;
-    });
+      if (hasInlineSnapshots)
+        await saveInlineSnapshots(this._environment, this._inlineSnapshots);
+      if (hasRawSnapshots)
+        await saveRawSnapshots(this._environment, this._rawSnapshots);
+      status.saved = true;
+    } else if (!hasExternalSnapshots && this._fileExists) {
+      if (this._updateSnapshot === "all") {
+        await this._environment.removeSnapshotFile(this.snapshotPath);
+        this._fileExists = false;
+      }
+      status.deleted = true;
+    }
+    return status;
   }
   getUncheckedCount() {
     return this._uncheckedKeys.size || 0;
@@ -13005,32 +12935,30 @@ ${JSON.stringify(stacks)}`
       }
     }
   }
-  pack() {
-    return __async(this, null, function* () {
-      const snapshot = {
-        filepath: this.testFilePath,
-        added: 0,
-        fileDeleted: false,
-        matched: 0,
-        unchecked: 0,
-        uncheckedKeys: [],
-        unmatched: 0,
-        updated: 0
-      };
-      const uncheckedCount = this.getUncheckedCount();
-      const uncheckedKeys = this.getUncheckedKeys();
-      if (uncheckedCount)
-        this.removeUncheckedKeys();
-      const status = yield this.save();
-      snapshot.fileDeleted = status.deleted;
-      snapshot.added = this.added;
-      snapshot.matched = this.matched;
-      snapshot.unmatched = this.unmatched;
-      snapshot.updated = this.updated;
-      snapshot.unchecked = !status.deleted ? uncheckedCount : 0;
-      snapshot.uncheckedKeys = Array.from(uncheckedKeys);
-      return snapshot;
-    });
+  async pack() {
+    const snapshot = {
+      filepath: this.testFilePath,
+      added: 0,
+      fileDeleted: false,
+      matched: 0,
+      unchecked: 0,
+      uncheckedKeys: [],
+      unmatched: 0,
+      updated: 0
+    };
+    const uncheckedCount = this.getUncheckedCount();
+    const uncheckedKeys = this.getUncheckedKeys();
+    if (uncheckedCount)
+      this.removeUncheckedKeys();
+    const status = await this.save();
+    snapshot.fileDeleted = status.deleted;
+    snapshot.added = this.added;
+    snapshot.matched = this.matched;
+    snapshot.unmatched = this.unmatched;
+    snapshot.updated = this.updated;
+    snapshot.unchecked = !status.deleted ? uncheckedCount : 0;
+    snapshot.uncheckedKeys = Array.from(uncheckedKeys);
+    return snapshot;
   }
 };
 function createMismatchError(message, expand, actual, expected) {
@@ -13052,31 +12980,29 @@ function createMismatchError(message, expand, actual, expected) {
 }
 var SnapshotClient = class {
   constructor(options = {}) {
-    __publicField(this, "filepath");
-    __publicField(this, "name");
-    __publicField(this, "snapshotState");
-    __publicField(this, "snapshotStateMap", /* @__PURE__ */ new Map());
     this.options = options;
   }
-  startCurrentRun(filepath, name, options) {
-    return __async(this, null, function* () {
-      var _a2;
-      this.filepath = filepath;
-      this.name = name;
-      if (((_a2 = this.snapshotState) == null ? void 0 : _a2.testFilePath) !== filepath) {
-        yield this.finishCurrentRun();
-        if (!this.getSnapshotState(filepath)) {
-          this.snapshotStateMap.set(
+  filepath;
+  name;
+  snapshotState;
+  snapshotStateMap = /* @__PURE__ */ new Map();
+  async startCurrentRun(filepath, name, options) {
+    var _a2;
+    this.filepath = filepath;
+    this.name = name;
+    if (((_a2 = this.snapshotState) == null ? void 0 : _a2.testFilePath) !== filepath) {
+      await this.finishCurrentRun();
+      if (!this.getSnapshotState(filepath)) {
+        this.snapshotStateMap.set(
+          filepath,
+          await SnapshotState.create(
             filepath,
-            yield SnapshotState.create(
-              filepath,
-              options
-            )
-          );
-        }
-        this.snapshotState = this.getSnapshotState(filepath);
+            options
+          )
+        );
       }
-    });
+      this.snapshotState = this.getSnapshotState(filepath);
+    }
   }
   getSnapshotState(filepath) {
     return this.snapshotStateMap.get(filepath);
@@ -13090,7 +13016,6 @@ var SnapshotClient = class {
     (_a2 = this.snapshotState) == null ? void 0 : _a2.markSnapshotsAsCheckedForTest(name);
   }
   assert(options) {
-    var _a3;
     var _a2, _b, _c, _d;
     const {
       filepath = this.filepath,
@@ -13110,7 +13035,7 @@ var SnapshotClient = class {
       if (typeof received !== "object" || !received)
         throw new Error("Received value must be an object when the matcher has properties");
       try {
-        const pass2 = (_a3 = (_b = (_a2 = this.options).isEqual) == null ? void 0 : _b.call(_a2, received, properties)) != null ? _a3 : false;
+        const pass2 = ((_b = (_a2 = this.options).isEqual) == null ? void 0 : _b.call(_a2, received, properties)) ?? false;
         if (!pass2)
           throw createMismatchError("Snapshot properties mismatched", (_c = this.snapshotState) == null ? void 0 : _c.expand, received, properties);
         else
@@ -13136,33 +13061,29 @@ var SnapshotClient = class {
     if (!pass)
       throw createMismatchError(`Snapshot \`${key || "unknown"}\` mismatched`, (_d = this.snapshotState) == null ? void 0 : _d.expand, actual == null ? void 0 : actual.trim(), expected == null ? void 0 : expected.trim());
   }
-  assertRaw(options) {
-    return __async(this, null, function* () {
-      if (!options.rawSnapshot)
-        throw new Error("Raw snapshot is required");
-      const {
-        filepath = this.filepath,
-        rawSnapshot
-      } = options;
-      if (rawSnapshot.content == null) {
-        if (!filepath)
-          throw new Error("Snapshot cannot be used outside of test");
-        const snapshotState = this.getSnapshotState(filepath);
-        options.filepath || (options.filepath = filepath);
-        rawSnapshot.file = yield snapshotState.environment.resolveRawPath(filepath, rawSnapshot.file);
-        rawSnapshot.content = (yield snapshotState.environment.readSnapshotFile(rawSnapshot.file)) || void 0;
-      }
-      return this.assert(options);
-    });
+  async assertRaw(options) {
+    if (!options.rawSnapshot)
+      throw new Error("Raw snapshot is required");
+    const {
+      filepath = this.filepath,
+      rawSnapshot
+    } = options;
+    if (rawSnapshot.content == null) {
+      if (!filepath)
+        throw new Error("Snapshot cannot be used outside of test");
+      const snapshotState = this.getSnapshotState(filepath);
+      options.filepath || (options.filepath = filepath);
+      rawSnapshot.file = await snapshotState.environment.resolveRawPath(filepath, rawSnapshot.file);
+      rawSnapshot.content = await snapshotState.environment.readSnapshotFile(rawSnapshot.file) || void 0;
+    }
+    return this.assert(options);
   }
-  finishCurrentRun() {
-    return __async(this, null, function* () {
-      if (!this.snapshotState)
-        return null;
-      const result = yield this.snapshotState.pack();
-      this.snapshotState = void 0;
-      return result;
-    });
+  async finishCurrentRun() {
+    if (!this.snapshotState)
+      return null;
+    const result = await this.snapshotState.pack();
+    this.snapshotState = void 0;
+    return result;
   }
   clear() {
     this.snapshotStateMap.clear();
@@ -13253,23 +13174,21 @@ function waitNextTick() {
   const { setTimeout } = getSafeTimers();
   return new Promise((resolve3) => setTimeout(resolve3, 0));
 }
-function waitForImportsToResolve() {
-  return __async(this, null, function* () {
-    yield waitNextTick();
-    const state = getWorkerState();
-    const promises = [];
-    let resolvingCount = 0;
-    for (const mod of state.moduleCache.values()) {
-      if (mod.promise && !mod.evaluated)
-        promises.push(mod.promise);
-      if (mod.resolving)
-        resolvingCount++;
-    }
-    if (!promises.length && !resolvingCount)
-      return;
-    yield Promise.allSettled(promises);
-    yield waitForImportsToResolve();
-  });
+async function waitForImportsToResolve() {
+  await waitNextTick();
+  const state = getWorkerState();
+  const promises = [];
+  let resolvingCount = 0;
+  for (const mod of state.moduleCache.values()) {
+    if (mod.promise && !mod.evaluated)
+      promises.push(mod.promise);
+    if (mod.resolving)
+      resolvingCount++;
+  }
+  if (!promises.length && !resolvingCount)
+    return;
+  await Promise.allSettled(promises);
+  await waitForImportsToResolve();
 }
 function commonjsRequire(path2) {
   throw new Error('Could not dynamically require "' + path2 + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
@@ -13436,13 +13355,14 @@ var SnapshotPlugin = (chai3, utils) => {
           properties = void 0;
         }
         const errorMessage = utils.flag(this, "message");
-        getSnapshotClient().assert(__spreadValues({
+        getSnapshotClient().assert({
           received: expected,
           message,
           isInline: false,
           properties,
-          errorMessage
-        }, getTestNames(test3)));
+          errorMessage,
+          ...getTestNames(test3)
+        });
       }
     );
   }
@@ -13456,15 +13376,16 @@ var SnapshotPlugin = (chai3, utils) => {
       const expected = utils.flag(this, "object");
       const test3 = utils.flag(this, "vitest-test");
       const errorMessage = utils.flag(this, "message");
-      const promise = getSnapshotClient().assertRaw(__spreadValues({
+      const promise = getSnapshotClient().assertRaw({
         received: expected,
         message,
         isInline: false,
         rawSnapshot: {
           file
         },
-        errorMessage
-      }, getTestNames(test3)));
+        errorMessage,
+        ...getTestNames(test3)
+      });
       return recordAsyncExpect2(test3, promise);
     }
   );
@@ -13490,15 +13411,16 @@ var SnapshotPlugin = (chai3, utils) => {
       if (inlineSnapshot)
         inlineSnapshot = stripSnapshotIndentation(inlineSnapshot);
       const errorMessage = utils.flag(this, "message");
-      getSnapshotClient().assert(__spreadValues({
+      getSnapshotClient().assert({
         received: expected,
         message,
         isInline: true,
         properties,
         inlineSnapshot,
         error,
-        errorMessage
-      }, getTestNames(test3)));
+        errorMessage,
+        ...getTestNames(test3)
+      });
     }
   );
   utils.addMethod(
@@ -13512,11 +13434,12 @@ var SnapshotPlugin = (chai3, utils) => {
       const test3 = utils.flag(this, "vitest-test");
       const promise = utils.flag(this, "promise");
       const errorMessage = utils.flag(this, "message");
-      getSnapshotClient().assert(__spreadValues({
+      getSnapshotClient().assert({
         received: getError(expected, promise),
         message,
-        errorMessage
-      }, getTestNames(test3)));
+        errorMessage,
+        ...getTestNames(test3)
+      });
     }
   );
   utils.addMethod(
@@ -13537,14 +13460,15 @@ var SnapshotPlugin = (chai3, utils) => {
       const errorMessage = utils.flag(this, "message");
       if (inlineSnapshot)
         inlineSnapshot = stripSnapshotIndentation(inlineSnapshot);
-      getSnapshotClient().assert(__spreadValues({
+      getSnapshotClient().assert({
         received: getError(expected, promise),
         message,
         inlineSnapshot,
         isInline: true,
         error,
-        errorMessage
-      }, getTestNames(test3)));
+        errorMessage,
+        ...getTestNames(test3)
+      });
     }
   );
   utils.addMethod(
@@ -13575,7 +13499,9 @@ function createExpect(test3) {
   expect3.getState = () => getState(expect3);
   expect3.setState = (state) => setState(state, expect3);
   const globalState = getState(globalThis[GLOBAL_EXPECT]) || {};
-  setState(__spreadProps(__spreadValues({}, globalState), {
+  setState({
+    // this should also add "snapshotState" that is added conditionally
+    ...globalState,
     assertionCalls: 0,
     isExpectingAssertions: false,
     isExpectingAssertionsError: null,
@@ -13584,7 +13510,7 @@ function createExpect(test3) {
     environment: getCurrentEnvironment(),
     testPath: test3 ? (_a2 = test3.suite.file) == null ? void 0 : _a2.filepath : globalState.testPath,
     currentTestName: test3 ? getFullName(test3) : globalState.currentTestName
-  }), expect3);
+  }, expect3);
   expect3.extend = (matchers) => expect.extend(expect3, matchers);
   expect3.addEqualityTesters = (customTesters) => addCustomEqualityTesters(customTesters);
   expect3.soft = (...args) => {
@@ -14140,7 +14066,7 @@ ${job.error.stack.split("\n").slice(matchedLineIndex + 1).join("\n")}`;
     return mirrorDateProperties(ClockDate, NativeDate);
   }
   function createIntl() {
-    const ClockIntl = __spreadValues({}, NativeIntl);
+    const ClockIntl = { ...NativeIntl };
     ClockIntl.DateTimeFormat = function(...args) {
       const realFormatter = new NativeIntl.DateTimeFormat(...args);
       const formatter = {};
@@ -15073,17 +14999,17 @@ defaultImplementation.createClock;
 defaultImplementation.install;
 var withGlobal_1 = withGlobal;
 var FakeTimers = class {
+  _global;
+  _clock;
+  _fakingTime;
+  _fakingDate;
+  _fakeTimers;
+  _userConfig;
+  _now = RealDate.now;
   constructor({
     global: global3,
     config: config2
   }) {
-    __publicField(this, "_global");
-    __publicField(this, "_clock");
-    __publicField(this, "_fakingTime");
-    __publicField(this, "_fakingDate");
-    __publicField(this, "_fakeTimers");
-    __publicField(this, "_userConfig");
-    __publicField(this, "_now", RealDate.now);
     this._userConfig = config2;
     this._fakingDate = false;
     this._fakingTime = false;
@@ -15101,21 +15027,17 @@ var FakeTimers = class {
     if (this._checkFakeTimers())
       this._clock.runAll();
   }
-  runAllTimersAsync() {
-    return __async(this, null, function* () {
-      if (this._checkFakeTimers())
-        yield this._clock.runAllAsync();
-    });
+  async runAllTimersAsync() {
+    if (this._checkFakeTimers())
+      await this._clock.runAllAsync();
   }
   runOnlyPendingTimers() {
     if (this._checkFakeTimers())
       this._clock.runToLast();
   }
-  runOnlyPendingTimersAsync() {
-    return __async(this, null, function* () {
-      if (this._checkFakeTimers())
-        yield this._clock.runToLastAsync();
-    });
+  async runOnlyPendingTimersAsync() {
+    if (this._checkFakeTimers())
+      await this._clock.runToLastAsync();
   }
   advanceTimersToNextTimer(steps = 1) {
     if (this._checkFakeTimers()) {
@@ -15127,27 +15049,23 @@ var FakeTimers = class {
       }
     }
   }
-  advanceTimersToNextTimerAsync(steps = 1) {
-    return __async(this, null, function* () {
-      if (this._checkFakeTimers()) {
-        for (let i2 = steps; i2 > 0; i2--) {
-          yield this._clock.nextAsync();
-          this._clock.tick(0);
-          if (this._clock.countTimers() === 0)
-            break;
-        }
+  async advanceTimersToNextTimerAsync(steps = 1) {
+    if (this._checkFakeTimers()) {
+      for (let i2 = steps; i2 > 0; i2--) {
+        await this._clock.nextAsync();
+        this._clock.tick(0);
+        if (this._clock.countTimers() === 0)
+          break;
       }
-    });
+    }
   }
   advanceTimersByTime(msToRun) {
     if (this._checkFakeTimers())
       this._clock.tick(msToRun);
   }
-  advanceTimersByTimeAsync(msToRun) {
-    return __async(this, null, function* () {
-      if (this._checkFakeTimers())
-        yield this._clock.tickAsync(msToRun);
-    });
+  async advanceTimersByTimeAsync(msToRun) {
+    if (this._checkFakeTimers())
+      await this._clock.tickAsync(msToRun);
   }
   runAllTicks() {
     if (this._checkFakeTimers()) {
@@ -15184,11 +15102,11 @@ var FakeTimers = class {
             return true;
         }
       });
-      this._clock = this._fakeTimers.install(__spreadProps(__spreadValues({
-        now: Date.now()
-      }, this._userConfig), {
+      this._clock = this._fakeTimers.install({
+        now: Date.now(),
+        ...this._userConfig,
         toFake: existingFakedMethods
-      }));
+      });
       this._fakingTime = true;
     }
   }
@@ -15203,7 +15121,7 @@ var FakeTimers = class {
     if (this._fakingTime) {
       this._clock.setSystemTime(now3);
     } else {
-      mockDate(now3 != null ? now3 : this.getRealSystemTime());
+      mockDate(now3 ?? this.getRealSystemTime());
       this._fakingDate = true;
     }
   }
@@ -15372,16 +15290,16 @@ function createVitest() {
   };
   const utils = {
     useFakeTimers(config2) {
-      var _a3, _b, _c, _d;
+      var _a2, _b, _c, _d;
       if (isChildProcess()) {
-        if (((_a3 = config2 == null ? void 0 : config2.toFake) == null ? void 0 : _a3.includes("nextTick")) || ((_d = (_c = (_b = workerState.config) == null ? void 0 : _b.fakeTimers) == null ? void 0 : _c.toFake) == null ? void 0 : _d.includes("nextTick"))) {
+        if (((_a2 = config2 == null ? void 0 : config2.toFake) == null ? void 0 : _a2.includes("nextTick")) || ((_d = (_c = (_b = workerState.config) == null ? void 0 : _b.fakeTimers) == null ? void 0 : _c.toFake) == null ? void 0 : _d.includes("nextTick"))) {
           throw new Error(
             'vi.useFakeTimers({ toFake: ["nextTick"] }) is not supported in node:child_process. Use --pool=threads if mocking nextTick is required.'
           );
         }
       }
       if (config2)
-        _timers.configure(__spreadValues(__spreadValues({}, workerState.config.fakeTimers), config2));
+        _timers.configure({ ...workerState.config.fakeTimers, ...config2 });
       else
         _timers.configure(workerState.config.fakeTimers);
       _timers.useFakeTimers();
@@ -15399,21 +15317,17 @@ function createVitest() {
       _timers.runOnlyPendingTimers();
       return utils;
     },
-    runOnlyPendingTimersAsync() {
-      return __async(this, null, function* () {
-        yield _timers.runOnlyPendingTimersAsync();
-        return utils;
-      });
+    async runOnlyPendingTimersAsync() {
+      await _timers.runOnlyPendingTimersAsync();
+      return utils;
     },
     runAllTimers() {
       _timers.runAllTimers();
       return utils;
     },
-    runAllTimersAsync() {
-      return __async(this, null, function* () {
-        yield _timers.runAllTimersAsync();
-        return utils;
-      });
+    async runAllTimersAsync() {
+      await _timers.runAllTimersAsync();
+      return utils;
     },
     runAllTicks() {
       _timers.runAllTicks();
@@ -15423,21 +15337,17 @@ function createVitest() {
       _timers.advanceTimersByTime(ms);
       return utils;
     },
-    advanceTimersByTimeAsync(ms) {
-      return __async(this, null, function* () {
-        yield _timers.advanceTimersByTimeAsync(ms);
-        return utils;
-      });
+    async advanceTimersByTimeAsync(ms) {
+      await _timers.advanceTimersByTimeAsync(ms);
+      return utils;
     },
     advanceTimersToNextTimer() {
       _timers.advanceTimersToNextTimer();
       return utils;
     },
-    advanceTimersToNextTimerAsync() {
-      return __async(this, null, function* () {
-        yield _timers.advanceTimersToNextTimerAsync();
-        return utils;
-      });
+    async advanceTimersToNextTimerAsync() {
+      await _timers.advanceTimersToNextTimerAsync();
+      return utils;
     },
     getTimerCount() {
       return _timers.getTimerCount();
@@ -15491,19 +15401,15 @@ function createVitest() {
     doUnmock(path2) {
       _mocker.queueUnmock(path2, getImporter());
     },
-    importActual(path2) {
-      return __async(this, null, function* () {
-        return _mocker.importActual(
-          path2,
-          getImporter(),
-          _mocker.getMockContext().callstack
-        );
-      });
+    async importActual(path2) {
+      return _mocker.importActual(
+        path2,
+        getImporter(),
+        _mocker.getMockContext().callstack
+      );
     },
-    importMock(path2) {
-      return __async(this, null, function* () {
-        return _mocker.importMock(path2, getImporter());
-      });
+    async importMock(path2) {
+      return _mocker.importMock(path2, getImporter());
     },
     // this is typed in the interface so it's not necessary to type it here
     mocked(item, _options = {}) {
@@ -15565,14 +15471,12 @@ function createVitest() {
       resetModules(workerState.moduleCache);
       return utils;
     },
-    dynamicImportSettled() {
-      return __async(this, null, function* () {
-        return waitForImportsToResolve();
-      });
+    async dynamicImportSettled() {
+      return waitForImportsToResolve();
     },
     setConfig(config2) {
       if (!_config)
-        _config = __spreadValues({}, workerState.config);
+        _config = { ...workerState.config };
       Object.assign(workerState.config, config2);
     },
     resetConfig() {
@@ -15684,6 +15588,12 @@ var expectTypeOf = dist.expectTypeOf;
 
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
+  id;
+  name;
+  email;
+  phone;
+  password;
+  createdAt;
   constructor(props) {
     this.id = props.id;
     this.name = props.name;
@@ -15696,96 +15606,77 @@ var UserEntity = class {
 
 // src/adapters/userAdapter.ts
 var UserAdapter = class {
-  static create(_0) {
-    return __async(this, arguments, function* ({
-      id,
-      name,
-      email,
-      phone,
-      password,
-      createdAt
-    }) {
-      return new UserEntity({ id, name, email, phone, password, createdAt });
-    });
+  static async create({
+    id,
+    name,
+    email,
+    phone,
+    password,
+    createdAt
+  }) {
+    return new UserEntity({ id, name, email, phone, password, createdAt });
   }
 };
 
 // src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
 var UserRepositoryInMemory = class {
-  constructor() {
-    this.userList = [
-      {
-        id: "1",
-        name: "Julio",
-        email: "julio@teste",
-        phone: "234234234",
-        password: "435345"
-      },
-      {
-        id: "2",
-        name: "Luan",
-        email: "luan@teste.com",
-        phone: "234234234",
-        password: "435345"
-      }
-    ];
-  }
+  userList = [
+    {
+      id: "1",
+      name: "Julio",
+      email: "julio@teste",
+      phone: "234234234",
+      password: "435345"
+    },
+    {
+      id: "2",
+      name: "Luan",
+      email: "luan@teste.com",
+      phone: "234234234",
+      password: "435345"
+    }
+  ];
   findUserById(id) {
     const user = this.userList.find((user2) => user2.id === id);
     return user;
   }
-  deleteUser(id) {
-    return __async(this, null, function* () {
-      this.userList.filter((user) => user.id === id);
-    });
+  async deleteUser(id) {
+    this.userList.filter((user) => user.id === id);
   }
-  findByEmail(email) {
-    return __async(this, null, function* () {
-      const user = yield this.userList.find((user2) => user2.email === email);
-      const userToAdapter = UserAdapter.create(user);
-      return userToAdapter;
-    });
+  async findByEmail(email) {
+    const user = await this.userList.find((user2) => user2.email === email);
+    const userToAdapter = UserAdapter.create(user);
+    return userToAdapter;
   }
   update({ name, email, phone, password }) {
     throw new Error("Method not implemented.");
   }
-  get() {
-    return __async(this, null, function* () {
-      const users = yield this.userList;
-      return users;
-    });
+  async get() {
+    const users = await this.userList;
+    return users;
   }
-  save(_0) {
-    return __async(this, arguments, function* ({ name, email }) {
-      this.userList.push({ name, email });
-    });
+  async save({ name, email }) {
+    this.userList.push({ name, email });
   }
 };
 
 // src/core/useCase/CreateUser.ts
-var import_bcryptjs = __toESM(require("bcryptjs"));
+var import_bcrypt = __toESM(require("bcrypt"));
 var CreateUserUseCase = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(_0) {
-    return __async(this, arguments, function* ({ name, email, phone, password }) {
-      if (!name || !email || !phone || !password) {
-        throw new Error("Preencher todos os campos!");
-      }
-      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
-      if (!numberOfSalt) {
-        throw new Error("senha n\xE3o \xE9 segura");
-      }
-      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
-      const user = yield this._userRepository.save({
-        name,
-        email,
-        phone,
-        password: passwordHash
-      });
-      return user;
+  async execute({ name, email, password, phone }) {
+    const numberOfSalt = 14;
+    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
+    const user = await this._userRepository.save({
+      name,
+      email,
+      phone,
+      password: passwordHash
     });
+    return user;
   }
 };
 
@@ -15797,11 +15688,11 @@ describe("Unit test CreateUseCase", () => {
     phone: "4234242",
     password: "23234234"
   };
-  test("should create users", () => __async(exports, null, function* () {
+  test("should create users", async () => {
     const userInMemory = new UserRepositoryInMemory();
     const createUser = new CreateUserUseCase(userInMemory);
-    yield createUser.execute(user);
-  }));
+    await createUser.execute(user);
+  });
 });
 /*! Bundled license information:
 

@@ -26,26 +26,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/core/useCase/CreateUser.ts
 var CreateUser_exports = {};
@@ -53,28 +33,21 @@ __export(CreateUser_exports, {
   default: () => CreateUserUseCase
 });
 module.exports = __toCommonJS(CreateUser_exports);
-var import_bcryptjs = __toESM(require("bcryptjs"));
+var import_bcrypt = __toESM(require("bcrypt"));
 var CreateUserUseCase = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(_0) {
-    return __async(this, arguments, function* ({ name, email, phone, password }) {
-      if (!name || !email || !phone || !password) {
-        throw new Error("Preencher todos os campos!");
-      }
-      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
-      if (!numberOfSalt) {
-        throw new Error("senha n\xE3o \xE9 segura");
-      }
-      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
-      const user = yield this._userRepository.save({
-        name,
-        email,
-        phone,
-        password: passwordHash
-      });
-      return user;
+  async execute({ name, email, password, phone }) {
+    const numberOfSalt = 14;
+    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
+    const user = await this._userRepository.save({
+      name,
+      email,
+      phone,
+      password: passwordHash
     });
+    return user;
   }
 };

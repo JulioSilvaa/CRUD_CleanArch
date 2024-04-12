@@ -24,6 +24,12 @@ __export(UserEntity_exports, {
 });
 module.exports = __toCommonJS(UserEntity_exports);
 var UserEntity = class {
+  id;
+  name;
+  email;
+  phone;
+  password;
+  createdAt;
   constructor(props) {
     this.id = props.id;
     this.name = props.name;

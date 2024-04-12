@@ -23,7 +23,6 @@ export default class UserRepositorySQL implements UserRepository {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      password: user.password,
       createdAt: user.createdAt,
     });
   }
@@ -40,7 +39,6 @@ export default class UserRepositorySQL implements UserRepository {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      password: user.password,
       createdAt: user.createdAt,
     });
   }
@@ -57,7 +55,7 @@ export default class UserRepositorySQL implements UserRepository {
 
   async get(): Promise<IUserInterface[] | any> {
     const userList: any[] = await prisma.user.findMany({
-      select: { name: true, email: true, phone: true, createdAt: true },
+      select: { id: true, name: true, email: true, phone: true, createdAt: true },
       orderBy: { createdAt: "desc" },
     });
     return userList;
