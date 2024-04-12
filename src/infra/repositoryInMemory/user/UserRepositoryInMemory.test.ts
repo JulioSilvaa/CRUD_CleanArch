@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import UserRepositoryInMemory from "./UserRepositoryInMemory";
-import CreateUserUseCase from "src/core/useCase/CreateUser";
+import CreateUserUseCase from "src/core/useCase/user/CreateUser";
 
 describe("Unit test CreateUseCase", () => {
   const user = {

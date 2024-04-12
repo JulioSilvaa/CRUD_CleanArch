@@ -17,22 +17,18 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/GetUsers.ts
-var GetUsers_exports = {};
-__export(GetUsers_exports, {
-  default: () => GetUsers
+// src/core/useCase/user/EditeUser.ts
+var EditeUser_exports = {};
+__export(EditeUser_exports, {
+  default: () => EditeUser
 });
-module.exports = __toCommonJS(GetUsers_exports);
-var GetUsers = class {
+module.exports = __toCommonJS(EditeUser_exports);
+var EditeUser = class {
   _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  async execute() {
-    const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      console.log("Lista est\xE1 vazia");
-    }
-    return userList;
+  async execute(user, dataBody) {
+    await this._userRepository.update(user, dataBody);
   }
 };

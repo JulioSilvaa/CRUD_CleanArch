@@ -27,7 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/CreateUser.ts
+// src/core/useCase/user/CreateUser.ts
 var CreateUser_exports = {};
 __export(CreateUser_exports, {
   default: () => CreateUserUseCase

@@ -1,6 +1,7 @@
-import bcrypt from "bcrypt"
-import IUserInterface from "../entities/UserEntity";
-import UserRepository from "../repositories/UserRepository";
+import bcrypt from "bcrypt";
+import { IUserInterface } from "src/core/entities/UserEntity";
+import UserRepository from "src/core/repositories/UserRepository";
+
 
 export default class CreateUserUseCase {
   _userRepository: UserRepository;

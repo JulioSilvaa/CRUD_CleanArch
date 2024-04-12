@@ -17,18 +17,19 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/EditeUser.ts
-var EditeUser_exports = {};
-__export(EditeUser_exports, {
-  default: () => EditeUser
+// src/core/useCase/user/DeleteUser.ts
+var DeleteUser_exports = {};
+__export(DeleteUser_exports, {
+  default: () => DeleteUser
 });
-module.exports = __toCommonJS(EditeUser_exports);
-var EditeUser = class {
+module.exports = __toCommonJS(DeleteUser_exports);
+var DeleteUser = class {
   _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  async execute(user, dataBody) {
-    await this._userRepository.update(user, dataBody);
+  async execute(id) {
+    const userDeleted = await this._userRepository.deleteUser(id);
+    return userDeleted;
   }
 };
