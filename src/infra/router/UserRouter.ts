@@ -6,11 +6,12 @@ import UserController from "src/controller/userController";
 
 const router = Router();
 
+router.get("/search", ExpressAdapter.create(UserController.search));
 router.get("/:id", ExpressAdapter.create(UserController.findUserById));
+router.delete("/:id", ExpressAdapter.create(UserController.delete));
+router.patch("/:id", ExpressAdapter.create(UserController.update));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
-router.post("/", ExpressAdapter.create(UserController.add))
-router.delete("/:id", ExpressAdapter.create(UserController.delete))
-router.patch("/:id", ExpressAdapter.create(UserController.update))
+router.post("/", ExpressAdapter.create(UserController.add));
 
 
 

@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/infra/repositorySQL/UserRepositorySQL.ts
 var UserRepositorySQL_exports = {};
@@ -48,6 +28,12 @@ var import_client = require("@prisma/client");
 
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
+  id;
+  name;
+  email;
+  phone;
+  password;
+  createdAt;
   constructor(props) {
     this.id = props.id;
     this.name = props.name;
@@ -60,79 +46,63 @@ var UserEntity = class {
 
 // src/adapters/userAdapter.ts
 var UserAdapter = class {
-  static create(_0) {
-    return __async(this, arguments, function* ({
-      id,
-      name,
-      email,
-      phone,
-      password,
-      createdAt
-    }) {
-      return new UserEntity({ id, name, email, phone, password, createdAt });
-    });
+  static async create({
+    id,
+    name,
+    email,
+    phone,
+    password,
+    createdAt
+  }) {
+    return new UserEntity({ id, name, email, phone, password, createdAt });
   }
 };
 
 // src/infra/repositorySQL/UserRepositorySQL.ts
 var prisma = new import_client.PrismaClient();
 var UserRepositorySQL = class {
-  save(_0) {
-    return __async(this, arguments, function* ({ name, email, phone, password }) {
-      yield prisma.user.create({ data: { name, email, phone, password } });
+  async save({ name, email, phone, password }) {
+    await prisma.user.create({ data: { name, email, phone, password } });
+  }
+  async findByEmail(email) {
+    const user = await prisma.user.findFirst({ where: { email } });
+    if (!user) {
+      return null;
+    }
+    return UserAdapter.create({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt
     });
   }
-  findByEmail(email) {
-    return __async(this, null, function* () {
-      const user = yield prisma.user.findFirst({ where: { email } });
-      if (!user) {
-        return null;
-      }
-      return UserAdapter.create({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: user.password,
-        createdAt: user.createdAt
-      });
+  async findUserById(id) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return null;
+    }
+    return UserAdapter.create({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt
     });
   }
-  findUserById(id) {
-    return __async(this, null, function* () {
-      const user = yield prisma.user.findUnique({ where: { id } });
-      if (!user) {
-        return null;
-      }
-      return UserAdapter.create({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: user.password,
-        createdAt: user.createdAt
-      });
-    });
+  async update(user, data) {
+    const { id } = user;
+    await prisma.user.update({ where: { id }, data });
   }
-  update(user, data) {
-    return __async(this, null, function* () {
-      const { id } = user;
-      yield prisma.user.update({ where: { id }, data });
-    });
+  async deleteUser(id) {
+    await prisma.user.delete({ where: { id } });
   }
-  deleteUser(id) {
-    return __async(this, null, function* () {
-      yield prisma.user.delete({ where: { id } });
+  async get() {
+    const userList = await prisma.user.findMany({
+      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      orderBy: { createdAt: "desc" }
     });
-  }
-  get() {
-    return __async(this, null, function* () {
-      const userList = yield prisma.user.findMany({
-        select: { name: true, email: true, phone: true, createdAt: true },
-        orderBy: { createdAt: "desc" }
-      });
-      return userList;
-    });
+    return userList;
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

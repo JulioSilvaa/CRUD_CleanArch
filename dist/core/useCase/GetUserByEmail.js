@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/core/useCase/GetUserByEmail.ts
 var GetUserByEmail_exports = {};
@@ -44,13 +24,12 @@ __export(GetUserByEmail_exports, {
 });
 module.exports = __toCommonJS(GetUserByEmail_exports);
 var GetUserByEmail = class {
+  _useRepository;
   constructor(userRepository) {
     this._useRepository = userRepository;
   }
-  execute(email) {
-    return __async(this, null, function* () {
-      const user = yield this._useRepository.findByEmail(email);
-      return user;
-    });
+  async execute(email) {
+    const user = await this._useRepository.findByEmail(email);
+    return user;
   }
 };

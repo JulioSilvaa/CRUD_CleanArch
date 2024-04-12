@@ -26,26 +26,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/infra/router/UserRouter.ts
 var UserRouter_exports = {};
@@ -58,100 +38,87 @@ var import_express = require("express");
 // src/adapters/ExpressAdapter.ts
 var ExpressAdapter = class {
   static create(fn) {
-    return function(req, res, next) {
-      return __async(this, null, function* () {
-        const obj = yield fn(req, req.body, res, next);
-        try {
-          return obj;
-        } catch (error) {
-          return error;
-        }
-      });
+    return async function(req, res, next) {
+      const obj = await fn(req, res, next);
+      try {
+        return obj;
+      } catch (error) {
+        return error;
+      }
     };
   }
 };
 
 // src/core/useCase/CreateUser.ts
-var import_bcryptjs = __toESM(require("bcryptjs"));
+var import_bcrypt = __toESM(require("bcrypt"));
 var CreateUserUseCase = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(_0) {
-    return __async(this, arguments, function* ({ name, email, phone, password }) {
-      if (!name || !email || !phone || !password) {
-        throw new Error("Preencher todos os campos!");
-      }
-      const numberOfSalt = process.env.SALT_PASSWORD_HASH;
-      if (!numberOfSalt) {
-        throw new Error("senha n\xE3o \xE9 segura");
-      }
-      const passwordHash = yield import_bcryptjs.default.hash(password, numberOfSalt);
-      const user = yield this._userRepository.save({
-        name,
-        email,
-        phone,
-        password: passwordHash
-      });
-      return user;
+  async execute({ name, email, password, phone }) {
+    const numberOfSalt = 14;
+    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
+    const user = await this._userRepository.save({
+      name,
+      email,
+      phone,
+      password: passwordHash
     });
+    return user;
   }
 };
 
 // src/core/useCase/EditeUser.ts
 var EditeUser = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(user, dataBody) {
-    return __async(this, null, function* () {
-      yield this._userRepository.update(user, dataBody);
-    });
+  async execute(user, dataBody) {
+    await this._userRepository.update(user, dataBody);
   }
 };
 
 // src/core/useCase/GetUserByEmail.ts
 var GetUserByEmail = class {
+  _useRepository;
   constructor(userRepository) {
     this._useRepository = userRepository;
   }
-  execute(email) {
-    return __async(this, null, function* () {
-      const user = yield this._useRepository.findByEmail(email);
-      return user;
-    });
+  async execute(email) {
+    const user = await this._useRepository.findByEmail(email);
+    return user;
   }
 };
 
 // src/core/useCase/GetUserById.ts
 var GetUserById = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute(id) {
-    return __async(this, null, function* () {
-      const user = yield this._userRepository.findUserById(id);
-      if (!user) {
-        throw new Error("Usu\xE1rio n\xE3o cadastrado");
-      }
-      return user;
-    });
+  async execute(id) {
+    const user = await this._userRepository.findUserById(id);
+    if (!user) {
+      throw new Error("Usu\xE1rio n\xE3o cadastrado");
+    }
+    return user;
   }
 };
 
 // src/core/useCase/GetUsers.ts
 var GetUsers = class {
+  _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  execute() {
-    return __async(this, null, function* () {
-      const userList = yield this._userRepository.get();
-      if (userList.length === 0) {
-        console.log("Lista est\xE1 vazia");
-      }
-      return userList;
-    });
+  async execute() {
+    const userList = await this._userRepository.get();
+    if (userList.length === 0) {
+      console.log("Lista est\xE1 vazia");
+    }
+    return userList;
   }
 };
 
@@ -160,6 +127,12 @@ var import_client = require("@prisma/client");
 
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
+  id;
+  name;
+  email;
+  phone;
+  password;
+  createdAt;
   constructor(props) {
     this.id = props.id;
     this.name = props.name;
@@ -172,166 +145,158 @@ var UserEntity = class {
 
 // src/adapters/userAdapter.ts
 var UserAdapter = class {
-  static create(_0) {
-    return __async(this, arguments, function* ({
-      id,
-      name,
-      email,
-      phone,
-      password,
-      createdAt
-    }) {
-      return new UserEntity({ id, name, email, phone, password, createdAt });
-    });
+  static async create({
+    id,
+    name,
+    email,
+    phone,
+    password,
+    createdAt
+  }) {
+    return new UserEntity({ id, name, email, phone, password, createdAt });
   }
 };
 
 // src/infra/repositorySQL/UserRepositorySQL.ts
 var prisma = new import_client.PrismaClient();
 var UserRepositorySQL = class {
-  save(_0) {
-    return __async(this, arguments, function* ({ name, email, phone, password }) {
-      yield prisma.user.create({ data: { name, email, phone, password } });
+  async save({ name, email, phone, password }) {
+    await prisma.user.create({ data: { name, email, phone, password } });
+  }
+  async findByEmail(email) {
+    const user = await prisma.user.findFirst({ where: { email } });
+    if (!user) {
+      return null;
+    }
+    return UserAdapter.create({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt
     });
   }
-  findByEmail(email) {
-    return __async(this, null, function* () {
-      const user = yield prisma.user.findFirst({ where: { email } });
-      if (!user) {
-        return null;
-      }
-      return UserAdapter.create({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: user.password,
-        createdAt: user.createdAt
-      });
+  async findUserById(id) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return null;
+    }
+    return UserAdapter.create({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt
     });
   }
-  findUserById(id) {
-    return __async(this, null, function* () {
-      const user = yield prisma.user.findUnique({ where: { id } });
-      if (!user) {
-        return null;
-      }
-      return UserAdapter.create({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: user.password,
-        createdAt: user.createdAt
-      });
-    });
+  async update(user, data) {
+    const { id } = user;
+    await prisma.user.update({ where: { id }, data });
   }
-  update(user, data) {
-    return __async(this, null, function* () {
-      const { id } = user;
-      yield prisma.user.update({ where: { id }, data });
-    });
+  async deleteUser(id) {
+    await prisma.user.delete({ where: { id } });
   }
-  deleteUser(id) {
-    return __async(this, null, function* () {
-      yield prisma.user.delete({ where: { id } });
+  async get() {
+    const userList = await prisma.user.findMany({
+      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      orderBy: { createdAt: "desc" }
     });
-  }
-  get() {
-    return __async(this, null, function* () {
-      const userList = yield prisma.user.findMany({
-        select: { name: true, email: true, phone: true, createdAt: true },
-        orderBy: { createdAt: "desc" }
-      });
-      return userList;
-    });
+    return userList;
   }
 };
 
 // src/controller/userController.ts
 var UserController = class {
-  static add(params, body, res, next) {
-    return __async(this, null, function* () {
-      try {
-        const userSQL = new UserRepositorySQL();
-        const checkEmailExists = new GetUserByEmail(userSQL);
-        const emailAlreadyExists = yield checkEmailExists.execute(body.email);
-        if (emailAlreadyExists) {
-          return res.status(400).json({ message: "Email j\xE1 est\xE1 em uso" });
-        }
-        const user = new CreateUserUseCase(userSQL);
-        yield user.execute(body);
-        return res.status(201).json({ message: "Usu\xE1rio criado com sucesso" });
-      } catch (error) {
-        next(error);
+  static async add(req, res, next) {
+    try {
+      const userSQL = new UserRepositorySQL();
+      const checkEmailExists = new GetUserByEmail(userSQL);
+      const emailAlreadyExists = await checkEmailExists.execute(req.body.email);
+      if (emailAlreadyExists) {
+        return res.status(400).json({ message: "Email j\xE1 est\xE1 em uso" });
       }
-    });
+      const user = new CreateUserUseCase(userSQL);
+      await user.execute(req.body);
+      return res.status(201).json({ message: "Usu\xE1rio criado com sucesso" });
+    } catch (error) {
+      next(error);
+    }
   }
-  static findUserById(req, body, res, next) {
-    return __async(this, null, function* () {
-      try {
-        const { id } = req.params;
-        const userSQL = new UserRepositorySQL();
-        const getUserById = new GetUserById(userSQL);
-        const user = yield getUserById.execute(id);
-        return res.status(200).json({ data: user });
-      } catch (error) {
-        next(error);
+  static async findUserById(req, res, next) {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        throw new Error("Usu\xE1rio n\xE3o encontrado");
       }
-    });
+      const userSQL = new UserRepositorySQL();
+      const getUserById = new GetUserById(userSQL);
+      const user = await getUserById.execute(id);
+      return res.status(200).json({ data: user });
+    } catch (error) {
+      next(error);
+    }
   }
-  static delete(req, body, res, next) {
-    return __async(this, null, function* () {
-      try {
-        const { id } = req.params;
-        const userSQL = new UserRepositorySQL();
-        const user = yield userSQL.findUserById(id);
-        if (!user) {
-          throw new Error("Usu\xE1rio n\xE3o encontrado");
-        }
-        yield userSQL.deleteUser(user.id);
-        return res.status(200).json({ message: "Usu\xE1rio deletado com sucesso!" });
-      } catch (error) {
-        next(error);
+  static async search(req, res, next) {
+    try {
+      const { id } = req.query;
+      if (!id) {
+        throw new Error("Usu\xE1rio n\xE3o encontrado");
       }
-    });
+      const userSQL = new UserRepositorySQL();
+      const getUserById = new GetUserById(userSQL);
+      const user = await getUserById.execute(id);
+      return res.status(200).json({ data: user });
+    } catch (error) {
+      next(error);
+    }
   }
-  static update(req, body, res, next) {
-    return __async(this, null, function* () {
-      try {
-        const { id } = req.params;
-        const userSQL = new UserRepositorySQL();
-        const user = yield userSQL.findUserById(id);
-        if (!user) {
-          throw new Error("Usu\xE1rio n\xE3o encontrado");
-        }
-        const editUser = new EditeUser(userSQL);
-        editUser.execute(user, body);
-        return res.status(200).json({ message: "Usu\xE1rio atualizado com sucesso!" });
-      } catch (error) {
-        next(error);
+  static async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userSQL = new UserRepositorySQL();
+      const user = await userSQL.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o encontrado");
       }
-    });
+      await userSQL.deleteUser(user.id);
+      return res.status(200).json({ message: "Usu\xE1rio exclu\xEDdo com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
   }
-  static getUsers(params, body, res, next) {
-    return __async(this, null, function* () {
-      try {
-        const userSQL = new UserRepositorySQL();
-        const user = new GetUsers(userSQL);
-        const userLista = yield user.execute();
-        return res.status(200).json({ userLista, quantity: userLista.length });
-      } catch (error) {
-        next(error);
+  static async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userSQL = new UserRepositorySQL();
+      const user = await userSQL.findUserById(id);
+      if (!user) {
+        throw new Error("Usu\xE1rio n\xE3o encontrado");
       }
-    });
+      const editUser = new EditeUser(userSQL);
+      editUser.execute(user, req.body);
+      return res.status(200).json({ message: "Usu\xE1rio atualizado com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getUsers(req, res, next) {
+    try {
+      const userSQL = new UserRepositorySQL();
+      const user = new GetUsers(userSQL);
+      const userLista = await user.execute();
+      return res.status(200).json({ userLista, quantity: userLista.length });
+    } catch (error) {
+      next(error);
+    }
   }
 };
 
 // src/infra/router/UserRouter.ts
 var router = (0, import_express.Router)();
+router.get("/search", ExpressAdapter.create(UserController.search));
 router.get("/:id", ExpressAdapter.create(UserController.findUserById));
-router.get("/", ExpressAdapter.create(UserController.getUsers));
-router.post("/", ExpressAdapter.create(UserController.add));
 router.delete("/:id", ExpressAdapter.create(UserController.delete));
 router.patch("/:id", ExpressAdapter.create(UserController.update));
+router.get("/", ExpressAdapter.create(UserController.getUsers));
+router.post("/", ExpressAdapter.create(UserController.add));
 var UserRouter_default = router;

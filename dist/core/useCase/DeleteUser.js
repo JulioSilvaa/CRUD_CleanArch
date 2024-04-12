@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/core/useCase/DeleteUser.ts
 var DeleteUser_exports = {};
@@ -44,13 +24,12 @@ __export(DeleteUser_exports, {
 });
 module.exports = __toCommonJS(DeleteUser_exports);
 var DeleteUser = class {
+  _userRepository;
   constructor(userRespository) {
     this._userRepository = userRespository;
   }
-  execute(id) {
-    return __async(this, null, function* () {
-      const userdeleted = yield this._userRepository.deleteUser(id);
-      return userdeleted;
-    });
+  async execute(id) {
+    const userdeleted = await this._userRepository.deleteUser(id);
+    return userdeleted;
   }
 };

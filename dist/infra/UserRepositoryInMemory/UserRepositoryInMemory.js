@@ -16,26 +16,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
 var UserRepositoryInMemory_exports = {};
@@ -46,6 +26,12 @@ module.exports = __toCommonJS(UserRepositoryInMemory_exports);
 
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
+  id;
+  name;
+  email;
+  phone;
+  password;
+  createdAt;
   constructor(props) {
     this.id = props.id;
     this.name = props.name;
@@ -58,68 +44,56 @@ var UserEntity = class {
 
 // src/adapters/userAdapter.ts
 var UserAdapter = class {
-  static create(_0) {
-    return __async(this, arguments, function* ({
-      id,
-      name,
-      email,
-      phone,
-      password,
-      createdAt
-    }) {
-      return new UserEntity({ id, name, email, phone, password, createdAt });
-    });
+  static async create({
+    id,
+    name,
+    email,
+    phone,
+    password,
+    createdAt
+  }) {
+    return new UserEntity({ id, name, email, phone, password, createdAt });
   }
 };
 
 // src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
 var UserRepositoryInMemory = class {
-  constructor() {
-    this.userList = [
-      {
-        id: "1",
-        name: "Julio",
-        email: "julio@teste",
-        phone: "234234234",
-        password: "435345"
-      },
-      {
-        id: "2",
-        name: "Luan",
-        email: "luan@teste.com",
-        phone: "234234234",
-        password: "435345"
-      }
-    ];
-  }
+  userList = [
+    {
+      id: "1",
+      name: "Julio",
+      email: "julio@teste",
+      phone: "234234234",
+      password: "435345"
+    },
+    {
+      id: "2",
+      name: "Luan",
+      email: "luan@teste.com",
+      phone: "234234234",
+      password: "435345"
+    }
+  ];
   findUserById(id) {
     const user = this.userList.find((user2) => user2.id === id);
     return user;
   }
-  deleteUser(id) {
-    return __async(this, null, function* () {
-      this.userList.filter((user) => user.id === id);
-    });
+  async deleteUser(id) {
+    this.userList.filter((user) => user.id === id);
   }
-  findByEmail(email) {
-    return __async(this, null, function* () {
-      const user = yield this.userList.find((user2) => user2.email === email);
-      const userToAdapter = UserAdapter.create(user);
-      return userToAdapter;
-    });
+  async findByEmail(email) {
+    const user = await this.userList.find((user2) => user2.email === email);
+    const userToAdapter = UserAdapter.create(user);
+    return userToAdapter;
   }
   update({ name, email, phone, password }) {
     throw new Error("Method not implemented.");
   }
-  get() {
-    return __async(this, null, function* () {
-      const users = yield this.userList;
-      return users;
-    });
+  async get() {
+    const users = await this.userList;
+    return users;
   }
-  save(_0) {
-    return __async(this, arguments, function* ({ name, email }) {
-      this.userList.push({ name, email });
-    });
+  async save({ name, email }) {
+    this.userList.push({ name, email });
   }
 };
