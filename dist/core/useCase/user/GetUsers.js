@@ -17,19 +17,22 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/DeleteUser.ts
-var DeleteUser_exports = {};
-__export(DeleteUser_exports, {
-  default: () => DeleteUser
+// src/core/useCase/user/GetUsers.ts
+var GetUsers_exports = {};
+__export(GetUsers_exports, {
+  default: () => GetUsers
 });
-module.exports = __toCommonJS(DeleteUser_exports);
-var DeleteUser = class {
+module.exports = __toCommonJS(GetUsers_exports);
+var GetUsers = class {
   _userRepository;
-  constructor(userRespository) {
-    this._userRepository = userRespository;
+  constructor(userRepository) {
+    this._userRepository = userRepository;
   }
-  async execute(id) {
-    const userdeleted = await this._userRepository.deleteUser(id);
-    return userdeleted;
+  async execute() {
+    const userList = await this._userRepository.get();
+    if (userList.length === 0) {
+      throw new Error("Lista est\xE1 vazia");
+    }
+    return userList;
   }
 };

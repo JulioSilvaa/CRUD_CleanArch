@@ -17,7 +17,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/GetUserById.ts
+// src/core/useCase/user/GetUserById.ts
 var GetUserById_exports = {};
 __export(GetUserById_exports, {
   default: () => GetUserById

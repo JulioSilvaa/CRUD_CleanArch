@@ -1,4 +1,5 @@
-import UserRepository from "../repositories/UserRepository";
+import UserRepository from "src/core/repositories/UserRepository";
+
 
 export default class GetUserById {
   _userRepository: UserRepository;

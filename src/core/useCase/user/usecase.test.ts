@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import GetUserByEmail from "src/core/useCase/GetUserByEmail";
-import GetUsers from "src/core/useCase/GetUsers";
-import CreateUserUseCase from "src/core/useCase/CreateUser";
-import UserRepositoryInMemory from "src/infra/UserRepositoryInMemory/UserRepositoryInMemory";
+import GetUserByEmail from "src/core/useCase/user/GetUserByEmail";
+import GetUsers from "src/core/useCase/user/GetUsers";
+import CreateUserUseCase from "src/core/useCase/user/CreateUser";
+
 import GetUserById from "./GetUserById";
+import UserRepositoryInMemory from "src/infra/repositoryInMemory/user/UserRepositoryInMemory";
 
 
 describe("Unit test CreateUseCase", () => {

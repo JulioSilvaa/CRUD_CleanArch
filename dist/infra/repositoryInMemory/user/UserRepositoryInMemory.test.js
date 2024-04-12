@@ -6230,8 +6230,8 @@ var require_chai = __commonJS({
     exports2.use(assertion);
     var core2 = require_assertions();
     exports2.use(core2);
-    var expect2 = require_expect();
-    exports2.use(expect2);
+    var expect3 = require_expect();
+    exports2.use(expect3);
     var should2 = require_should();
     exports2.use(should2);
     var assert2 = require_assert();
@@ -7659,7 +7659,14 @@ function clone(val, seen, options = defaultCloneOptions) {
       if (!descriptor)
         continue;
       const cloned = clone(val[k22], seen, options);
-      if ("get" in descriptor) {
+      if (options.forceWritable) {
+        Object.defineProperty(out, k22, {
+          enumerable: descriptor.enumerable,
+          configurable: true,
+          writable: true,
+          value: cloned
+        });
+      } else if ("get" in descriptor) {
         Object.defineProperty(out, k22, {
           ...descriptor,
           get() {
@@ -7669,7 +7676,6 @@ function clone(val, seen, options = defaultCloneOptions) {
       } else {
         Object.defineProperty(out, k22, {
           ...descriptor,
-          writable: options.forceWritable ? true : descriptor.writable,
           value: cloned
         });
       }
@@ -7830,7 +7836,7 @@ function objDisplay(obj, options = {}) {
   if (options.truncate && str.length >= options.truncate) {
     if (type2 === "[object Function]") {
       const fn2 = obj;
-      return !fn2.name || fn2.name === "" ? "[Function]" : `[Function: ${fn2.name}]`;
+      return !fn2.name ? "[Function]" : `[Function: ${fn2.name}]`;
     } else if (type2 === "[object Array]") {
       return `[ Array(${obj.length}) ]`;
     } else if (type2 === "[object Object]") {
@@ -8265,6 +8271,7 @@ function joinAlignedDiffsExpand(diffs, options) {
 }
 var noColor = (string3) => string3;
 var DIFF_CONTEXT_DEFAULT = 5;
+var DIFF_TRUNCATE_THRESHOLD_DEFAULT = 0;
 function getDefaultOptions() {
   const c2 = getColors();
   return {
@@ -8285,7 +8292,10 @@ function getDefaultOptions() {
     expand: true,
     includeChangeCounts: false,
     omitAnnotationLines: false,
-    patchColor: c2.yellow
+    patchColor: c2.yellow,
+    truncateThreshold: DIFF_TRUNCATE_THRESHOLD_DEFAULT,
+    truncateAnnotation: "... Diff result is truncated",
+    truncateAnnotationColor: noColor
   };
 }
 function getCompareKeys(compareKeys) {
@@ -8353,16 +8363,21 @@ ${bColor(b2)}
 
 `;
 }
-function printDiffLines(diffs, options) {
-  return printAnnotation(options, countChanges(diffs)) + (options.expand ? joinAlignedDiffsExpand(diffs, options) : joinAlignedDiffsNoExpand(diffs, options));
+function printDiffLines(diffs, truncated, options) {
+  return printAnnotation(options, countChanges(diffs)) + (options.expand ? joinAlignedDiffsExpand(diffs, options) : joinAlignedDiffsNoExpand(diffs, options)) + (truncated ? options.truncateAnnotationColor(`
+${options.truncateAnnotation}`) : "");
 }
 function diffLinesUnified(aLines, bLines, options) {
+  const normalizedOptions = normalizeDiffOptions(options);
+  const [diffs, truncated] = diffLinesRaw(
+    isEmptyString(aLines) ? [] : aLines,
+    isEmptyString(bLines) ? [] : bLines,
+    normalizedOptions
+  );
   return printDiffLines(
-    diffLinesRaw(
-      isEmptyString(aLines) ? [] : aLines,
-      isEmptyString(bLines) ? [] : bLines
-    ),
-    normalizeDiffOptions(options)
+    diffs,
+    truncated,
+    normalizedOptions
   );
 }
 function diffLinesUnified2(aLinesDisplay, bLinesDisplay, aLinesCompare, bLinesCompare, options) {
@@ -8377,7 +8392,7 @@ function diffLinesUnified2(aLinesDisplay, bLinesDisplay, aLinesCompare, bLinesCo
   if (aLinesDisplay.length !== aLinesCompare.length || bLinesDisplay.length !== bLinesCompare.length) {
     return diffLinesUnified(aLinesDisplay, bLinesDisplay, options);
   }
-  const diffs = diffLinesRaw(aLinesCompare, bLinesCompare);
+  const [diffs, truncated] = diffLinesRaw(aLinesCompare, bLinesCompare, options);
   let aIndex = 0;
   let bIndex = 0;
   diffs.forEach((diff2) => {
@@ -8396,11 +8411,14 @@ function diffLinesUnified2(aLinesDisplay, bLinesDisplay, aLinesCompare, bLinesCo
         bIndex += 1;
     }
   });
-  return printDiffLines(diffs, normalizeDiffOptions(options));
+  return printDiffLines(diffs, truncated, normalizeDiffOptions(options));
 }
-function diffLinesRaw(aLines, bLines) {
-  const aLength = aLines.length;
-  const bLength = bLines.length;
+function diffLinesRaw(aLines, bLines, options) {
+  const truncate2 = (options == null ? void 0 : options.truncateThreshold) ?? false;
+  const truncateThreshold = Math.max(Math.floor((options == null ? void 0 : options.truncateThreshold) ?? 0), 0);
+  const aLength = truncate2 ? Math.min(aLines.length, truncateThreshold) : aLines.length;
+  const bLength = truncate2 ? Math.min(bLines.length, truncateThreshold) : bLines.length;
+  const truncated = aLength !== aLines.length || bLength !== bLines.length;
   const isCommon = (aIndex2, bIndex2) => aLines[aIndex2] === bLines[bIndex2];
   const diffs = [];
   let aIndex = 0;
@@ -8419,7 +8437,7 @@ function diffLinesRaw(aLines, bLines) {
     diffs.push(new Diff(DIFF_DELETE, aLines[aIndex]));
   for (; bIndex !== bLength; bIndex += 1)
     diffs.push(new Diff(DIFF_INSERT, bLines[bIndex]));
-  return diffs;
+  return [diffs, truncated];
 }
 function getCommonMessage(message, options) {
   const { commonColor } = normalizeDiffOptions(options);
@@ -9603,10 +9621,10 @@ function createSuiteCollector(name, factory = () => {
     }
     if (runner.config.includeTaskLocation) {
       const limit = Error.stackTraceLimit;
-      Error.stackTraceLimit = 10;
+      Error.stackTraceLimit = 15;
       const error = new Error("stacktrace").stack;
       Error.stackTraceLimit = limit;
-      const stack = findStackTrace(error, task2.each ?? false);
+      const stack = findTestFileStackTrace(error, task2.each ?? false);
       if (stack)
         task2.location = stack;
     }
@@ -9659,18 +9677,12 @@ function createSuiteCollector(name, factory = () => {
     };
     if (runner && includeLocation && runner.config.includeTaskLocation) {
       const limit = Error.stackTraceLimit;
-      Error.stackTraceLimit = 5;
+      Error.stackTraceLimit = 15;
       const error = new Error("stacktrace").stack;
       Error.stackTraceLimit = limit;
-      const stack = parseSingleStack(error.split("\n")[5]);
-      if (stack) {
-        suite2.location = {
-          line: stack.line,
-          // because source map is boundary based, this line leads to ")" in test.each()[(]),
-          // but it should be the next opening bracket - here we assume it's on the same line
-          column: each ? stack.column + 1 : stack.column
-        };
-      }
+      const stack = findTestFileStackTrace(error, suite2.each ?? false);
+      if (stack)
+        suite2.location = stack;
     }
     setHooks(suite2, createSuiteHooks());
   }
@@ -9814,8 +9826,8 @@ function formatTemplateString(cases, args) {
   }
   return res;
 }
-function findStackTrace(error, each) {
-  const lines = error.split("\n").slice(4);
+function findTestFileStackTrace(error, each) {
+  const lines = error.split("\n").slice(1);
   for (const line of lines) {
     const stack = parseSingleStack(line);
     if (stack && stack.file === getTestFilepath()) {
@@ -10221,14 +10233,14 @@ if (!Object.prototype.hasOwnProperty.call(globalThis, MATCHERS_OBJECT)) {
     get: () => assymetricMatchers
   });
 }
-function getState(expect2) {
-  return globalThis[MATCHERS_OBJECT].get(expect2);
+function getState(expect3) {
+  return globalThis[MATCHERS_OBJECT].get(expect3);
 }
-function setState(state, expect2) {
+function setState(state, expect3) {
   const map2 = globalThis[MATCHERS_OBJECT];
-  const current = map2.get(expect2) || {};
+  const current = map2.get(expect3) || {};
   Object.assign(current, state);
-  map2.set(expect2, current);
+  map2.set(expect3, current);
 }
 function getMatcherUtils() {
   const c2 = () => getColors();
@@ -10601,6 +10613,57 @@ Received: serializes to the same string
 function pluralize(word, count) {
   return `${count} ${word}${count === 1 ? "" : "s"}`;
 }
+function getObjectKeys(object2) {
+  return [
+    ...Object.keys(object2),
+    ...Object.getOwnPropertySymbols(object2).filter(
+      (s) => {
+        var _a2;
+        return (_a2 = Object.getOwnPropertyDescriptor(object2, s)) == null ? void 0 : _a2.enumerable;
+      }
+    )
+  ];
+}
+function getObjectSubset(object2, subset, customTesters = []) {
+  let stripped = 0;
+  const getObjectSubsetWithContext = (seenReferences = /* @__PURE__ */ new WeakMap()) => (object22, subset2) => {
+    if (Array.isArray(object22)) {
+      if (Array.isArray(subset2) && subset2.length === object22.length) {
+        return subset2.map(
+          (sub, i2) => getObjectSubsetWithContext(seenReferences)(object22[i2], sub)
+        );
+      }
+    } else if (object22 instanceof Date) {
+      return object22;
+    } else if (isObject(object22) && isObject(subset2)) {
+      if (equals(object22, subset2, [
+        ...customTesters,
+        iterableEquality,
+        subsetEquality
+      ])) {
+        return subset2;
+      }
+      const trimmed = {};
+      seenReferences.set(object22, trimmed);
+      for (const key of getObjectKeys(object22)) {
+        if (hasPropertyInObject(subset2, key)) {
+          trimmed[key] = seenReferences.has(object22[key]) ? seenReferences.get(object22[key]) : getObjectSubsetWithContext(seenReferences)(object22[key], subset2[key]);
+        } else {
+          if (!seenReferences.has(object22[key])) {
+            stripped += 1;
+            if (isObject(object22[key]))
+              stripped += getObjectKeys(object22[key]).length;
+            getObjectSubsetWithContext(seenReferences)(object22[key], subset2[key]);
+          }
+        }
+      }
+      if (getObjectKeys(trimmed).length > 0)
+        return trimmed;
+    }
+    return object22;
+  };
+  return { subset: getObjectSubsetWithContext()(object2, subset), stripped };
+}
 var AsymmetricMatcher3 = class {
   constructor(sample, inverse = false) {
     this.sample = sample;
@@ -10608,9 +10671,9 @@ var AsymmetricMatcher3 = class {
   }
   // should have "jest" to be compatible with its ecosystem
   $$typeof = Symbol.for("jest.asymmetricMatcher");
-  getMatcherContext(expect2) {
+  getMatcherContext(expect3) {
     return {
-      ...getState(expect2 || globalThis[GLOBAL_EXPECT]),
+      ...getState(expect3 || globalThis[GLOBAL_EXPECT]),
       equals,
       isNot: this.inverse,
       customTesters: getCustomEqualityTesters(),
@@ -11028,16 +11091,29 @@ var JestChaiExpect = (chai3, utils) => {
   });
   def("toMatchObject", function(expected) {
     const actual = this._obj;
-    return this.assert(
-      equals(actual, expected, [...customTesters, iterableEquality, subsetEquality]),
-      "expected #{this} to match object #{exp}",
-      "expected #{this} to not match object #{exp}",
-      expected,
-      actual
+    const pass = equals(actual, expected, [...customTesters, iterableEquality, subsetEquality]);
+    const isNot = utils.flag(this, "negate");
+    const { subset: actualSubset, stripped } = getObjectSubset(actual, expected);
+    const msg = utils.getMessage(
+      this,
+      [
+        pass,
+        "expected #{this} to match object #{exp}",
+        "expected #{this} to not match object #{exp}",
+        expected,
+        actualSubset
+      ]
     );
+    if (pass && isNot || !pass && !isNot) {
+      const message = stripped === 0 ? msg : `${msg}
+(${stripped} matching ${stripped === 1 ? "property" : "properties"} omitted from actual)`;
+      throw new AssertionError2(message, { showDiff: true, expected, actual: actualSubset });
+    }
   });
   def("toMatch", function(expected) {
     const actual = this._obj;
+    if (typeof actual !== "string")
+      throw new TypeError(`.toMatch() expects to receive a string, but got ${typeof actual}`);
     return this.assert(
       typeof expected === "string" ? actual.includes(expected) : actual.match(expected),
       `expected #{this} to match #{exp}`,
@@ -11379,12 +11455,15 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
     const spy = getSpy(this);
     const spyName = spy.getMockName();
     const nthCall = spy.mock.calls[times - 1];
+    const callCount = spy.mock.calls.length;
+    const isCalled = times <= callCount;
     this.assert(
       equals(nthCall, args, [...customTesters, iterableEquality]),
-      `expected ${ordinalOf(times)} "${spyName}" call to have been called with #{exp}`,
+      `expected ${ordinalOf(times)} "${spyName}" call to have been called with #{exp}${isCalled ? `` : `, but called only ${callCount} times`}`,
       `expected ${ordinalOf(times)} "${spyName}" call to not have been called with #{exp}`,
       args,
-      nthCall
+      nthCall,
+      isCalled
     );
   });
   def(["toHaveBeenLastCalledWith", "lastCalledWith"], function(...args) {
@@ -11612,7 +11691,7 @@ Number of calls: ${c2().bold(spy.mock.calls.length)}
     return proxy;
   });
 };
-function getMatcherState(assertion, expect2) {
+function getMatcherState(assertion, expect3) {
   const obj = assertion._obj;
   const isNot = util.flag(assertion, "negate");
   const promise = util.flag(assertion, "promise") || "";
@@ -11624,7 +11703,7 @@ function getMatcherState(assertion, expect2) {
     subsetEquality
   };
   const matcherState = {
-    ...getState(expect2),
+    ...getState(expect3),
     customTesters: getCustomEqualityTesters(),
     isNot,
     utils: jestUtils,
@@ -11646,11 +11725,11 @@ var JestExtendError = class extends Error {
     this.expected = expected;
   }
 };
-function JestExtendPlugin(expect2, matchers) {
+function JestExtendPlugin(expect3, matchers) {
   return (c2, utils) => {
     Object.entries(matchers).forEach(([expectAssertionName, expectAssertion]) => {
       function expectWrapper(...args) {
-        const { state, isNot, obj } = getMatcherState(this, expect2);
+        const { state, isNot, obj } = getMatcherState(this, expect3);
         const result = expectAssertion.call(state, obj, ...args);
         if (result && typeof result === "object" && result instanceof Promise) {
           return result.then(({ pass: pass2, message: message2, actual: actual2, expected: expected2 }) => {
@@ -11671,7 +11750,7 @@ function JestExtendPlugin(expect2, matchers) {
         }
         asymmetricMatch(other) {
           const { pass } = expectAssertion.call(
-            this.getMatcherContext(expect2),
+            this.getMatcherContext(expect3),
             other,
             ...this.sample
           );
@@ -11688,13 +11767,13 @@ function JestExtendPlugin(expect2, matchers) {
         }
       }
       const customMatcher = (...sample) => new CustomMatcher(false, ...sample);
-      Object.defineProperty(expect2, expectAssertionName, {
+      Object.defineProperty(expect3, expectAssertionName, {
         configurable: true,
         enumerable: true,
         value: customMatcher,
         writable: true
       });
-      Object.defineProperty(expect2.not, expectAssertionName, {
+      Object.defineProperty(expect3.not, expectAssertionName, {
         configurable: true,
         enumerable: true,
         value: (...sample) => new CustomMatcher(true, ...sample),
@@ -11710,8 +11789,8 @@ function JestExtendPlugin(expect2, matchers) {
   };
 }
 var JestExtend = (chai3, utils) => {
-  utils.addMethod(chai3.expect, "extend", (expect2, expects) => {
-    chai3.use(JestExtendPlugin(expect2, expects));
+  utils.addMethod(chai3.expect, "extend", (expect3, expects) => {
+    chai3.use(JestExtendPlugin(expect3, expects));
   });
 };
 
@@ -13151,7 +13230,7 @@ function resetDate() {
   globalThis.Date = RealDate;
 }
 
-// node_modules/vitest/dist/vendor/vi.JYQecGiw.js
+// node_modules/vitest/dist/vendor/vi.Fxjax7rQ.js
 function resetModules(modules, resetMocks = false) {
   const skipPaths = [
     // Vitest
@@ -13484,9 +13563,9 @@ use(SnapshotPlugin);
 use(JestAsymmetricMatchers);
 function createExpect(test3) {
   var _a2;
-  const expect2 = (value, message) => {
-    const { assertionCalls } = getState(expect2);
-    setState({ assertionCalls: assertionCalls + 1, soft: false }, expect2);
+  const expect3 = (value, message) => {
+    const { assertionCalls } = getState(expect3);
+    setState({ assertionCalls: assertionCalls + 1, soft: false }, expect3);
     const assert2 = expect(value, message);
     const _test2 = test3 || getCurrentTest();
     if (_test2)
@@ -13494,10 +13573,10 @@ function createExpect(test3) {
     else
       return assert2;
   };
-  Object.assign(expect2, expect);
-  Object.assign(expect2, globalThis[ASYMMETRIC_MATCHERS_OBJECT]);
-  expect2.getState = () => getState(expect2);
-  expect2.setState = (state) => setState(state, expect2);
+  Object.assign(expect3, expect);
+  Object.assign(expect3, globalThis[ASYMMETRIC_MATCHERS_OBJECT]);
+  expect3.getState = () => getState(expect3);
+  expect3.setState = (state) => setState(state, expect3);
   const globalState = getState(globalThis[GLOBAL_EXPECT]) || {};
   setState({
     // this should also add "snapshotState" that is added conditionally
@@ -13510,24 +13589,24 @@ function createExpect(test3) {
     environment: getCurrentEnvironment(),
     testPath: test3 ? (_a2 = test3.suite.file) == null ? void 0 : _a2.filepath : globalState.testPath,
     currentTestName: test3 ? getFullName(test3) : globalState.currentTestName
-  }, expect2);
-  expect2.extend = (matchers) => expect.extend(expect2, matchers);
-  expect2.addEqualityTesters = (customTesters) => addCustomEqualityTesters(customTesters);
-  expect2.soft = (...args) => {
-    const assert2 = expect2(...args);
-    expect2.setState({
+  }, expect3);
+  expect3.extend = (matchers) => expect.extend(expect3, matchers);
+  expect3.addEqualityTesters = (customTesters) => addCustomEqualityTesters(customTesters);
+  expect3.soft = (...args) => {
+    const assert2 = expect3(...args);
+    expect3.setState({
       soft: true
     });
     return assert2;
   };
-  expect2.unreachable = (message) => {
+  expect3.unreachable = (message) => {
     assert.fail(`expected${message ? ` "${message}" ` : " "}not to be reached`);
   };
   function assertions(expected) {
-    const errorGen = () => new Error(`expected number of assertions to be ${expected}, but got ${expect2.getState().assertionCalls}`);
+    const errorGen = () => new Error(`expected number of assertions to be ${expected}, but got ${expect3.getState().assertionCalls}`);
     if (Error.captureStackTrace)
       Error.captureStackTrace(errorGen(), assertions);
-    expect2.setState({
+    expect3.setState({
       expectedAssertionsNumber: expected,
       expectedAssertionsNumberErrorGen: errorGen
     });
@@ -13536,14 +13615,14 @@ function createExpect(test3) {
     const error = new Error("expected any number of assertion, but got none");
     if (Error.captureStackTrace)
       Error.captureStackTrace(error, hasAssertions);
-    expect2.setState({
+    expect3.setState({
       isExpectingAssertions: true,
       isExpectingAssertionsError: error
     });
   }
-  util.addMethod(expect2, "assertions", assertions);
-  util.addMethod(expect2, "hasAssertions", hasAssertions);
-  return expect2;
+  util.addMethod(expect3, "assertions", assertions);
+  util.addMethod(expect3, "hasAssertions", hasAssertions);
+  return expect3;
 }
 var globalExpect = createExpect();
 Object.defineProperty(globalThis, GLOBAL_EXPECT, {
@@ -15276,10 +15355,11 @@ function createVitest() {
   let _mockedDate = null;
   let _config = null;
   const workerState = getWorkerState();
-  const _timers = new FakeTimers({
+  let _timers;
+  const timers = () => _timers || (_timers = new FakeTimers({
     global: globalThis,
     config: workerState.config.fakeTimers
-  });
+  }));
   const _stubsGlobal = /* @__PURE__ */ new Map();
   const _stubsEnv = /* @__PURE__ */ new Map();
   const getImporter = () => {
@@ -15299,73 +15379,73 @@ function createVitest() {
         }
       }
       if (config2)
-        _timers.configure({ ...workerState.config.fakeTimers, ...config2 });
+        timers().configure({ ...workerState.config.fakeTimers, ...config2 });
       else
-        _timers.configure(workerState.config.fakeTimers);
-      _timers.useFakeTimers();
+        timers().configure(workerState.config.fakeTimers);
+      timers().useFakeTimers();
       return utils;
     },
     isFakeTimers() {
-      return _timers.isFakeTimers();
+      return timers().isFakeTimers();
     },
     useRealTimers() {
-      _timers.useRealTimers();
+      timers().useRealTimers();
       _mockedDate = null;
       return utils;
     },
     runOnlyPendingTimers() {
-      _timers.runOnlyPendingTimers();
+      timers().runOnlyPendingTimers();
       return utils;
     },
     async runOnlyPendingTimersAsync() {
-      await _timers.runOnlyPendingTimersAsync();
+      await timers().runOnlyPendingTimersAsync();
       return utils;
     },
     runAllTimers() {
-      _timers.runAllTimers();
+      timers().runAllTimers();
       return utils;
     },
     async runAllTimersAsync() {
-      await _timers.runAllTimersAsync();
+      await timers().runAllTimersAsync();
       return utils;
     },
     runAllTicks() {
-      _timers.runAllTicks();
+      timers().runAllTicks();
       return utils;
     },
     advanceTimersByTime(ms) {
-      _timers.advanceTimersByTime(ms);
+      timers().advanceTimersByTime(ms);
       return utils;
     },
     async advanceTimersByTimeAsync(ms) {
-      await _timers.advanceTimersByTimeAsync(ms);
+      await timers().advanceTimersByTimeAsync(ms);
       return utils;
     },
     advanceTimersToNextTimer() {
-      _timers.advanceTimersToNextTimer();
+      timers().advanceTimersToNextTimer();
       return utils;
     },
     async advanceTimersToNextTimerAsync() {
-      await _timers.advanceTimersToNextTimerAsync();
+      await timers().advanceTimersToNextTimerAsync();
       return utils;
     },
     getTimerCount() {
-      return _timers.getTimerCount();
+      return timers().getTimerCount();
     },
     setSystemTime(time) {
       const date = time instanceof Date ? time : new Date(time);
       _mockedDate = date;
-      _timers.setSystemTime(date);
+      timers().setSystemTime(date);
       return utils;
     },
     getMockedSystemTime() {
       return _mockedDate;
     },
     getRealSystemTime() {
-      return _timers.getRealSystemTime();
+      return timers().getRealSystemTime();
     },
     clearAllTimers() {
-      _timers.clearAllTimers();
+      timers().clearAllTimers();
       return utils;
     },
     // mocks
@@ -15489,7 +15569,7 @@ function createVitest() {
 var vitest = createVitest();
 var vi = vitest;
 
-// node_modules/vitest/dist/vendor/index.BeX1oZht.js
+// node_modules/vitest/dist/vendor/index.12jbrDSD.js
 function getRunningMode() {
   return process.env.VITEST_MODE === "WATCH" ? "watch" : "run";
 }
@@ -15586,53 +15666,6 @@ var VitestIndex = /* @__PURE__ */ Object.freeze({
 // node_modules/vitest/dist/index.js
 var expectTypeOf = dist.expectTypeOf;
 
-// src/core/useCase/GetUserByEmail.ts
-var GetUserByEmail = class {
-  _useRepository;
-  constructor(userRepository) {
-    this._useRepository = userRepository;
-  }
-  async execute(email) {
-    const user = await this._useRepository.findByEmail(email);
-    return user;
-  }
-};
-
-// src/core/useCase/GetUsers.ts
-var GetUsers = class {
-  _userRepository;
-  constructor(userRepository) {
-    this._userRepository = userRepository;
-  }
-  async execute() {
-    const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      console.log("Lista est\xE1 vazia");
-    }
-    return userList;
-  }
-};
-
-// src/core/useCase/CreateUser.ts
-var import_bcrypt = __toESM(require("bcrypt"));
-var CreateUserUseCase = class {
-  _userRepository;
-  constructor(userRepository) {
-    this._userRepository = userRepository;
-  }
-  async execute({ name, email, password, phone }) {
-    const numberOfSalt = 14;
-    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
-    const user = await this._userRepository.save({
-      name,
-      email,
-      phone,
-      password: passwordHash
-    });
-    return user;
-  }
-};
-
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
   id;
@@ -15665,7 +15698,7 @@ var UserAdapter = class {
   }
 };
 
-// src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
+// src/infra/repositoryInMemory/user/UserRepositoryInMemory.ts
 var UserRepositoryInMemory = class {
   userList = [
     {
@@ -15707,22 +15740,27 @@ var UserRepositoryInMemory = class {
   }
 };
 
-// src/core/useCase/GetUserById.ts
-var GetUserById = class {
+// src/core/useCase/user/CreateUser.ts
+var import_bcrypt = __toESM(require("bcrypt"));
+var CreateUserUseCase = class {
   _userRepository;
   constructor(userRepository) {
     this._userRepository = userRepository;
   }
-  async execute(id) {
-    const user = await this._userRepository.findUserById(id);
-    if (!user) {
-      throw new Error("Usu\xE1rio n\xE3o cadastrado");
-    }
+  async execute({ name, email, password, phone }) {
+    const numberOfSalt = 14;
+    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
+    const user = await this._userRepository.save({
+      name,
+      email,
+      phone,
+      password: passwordHash
+    });
     return user;
   }
 };
 
-// src/core/useCase/usecase.test.ts
+// src/infra/repositoryInMemory/user/UserRepositoryInMemory.test.ts
 describe("Unit test CreateUseCase", () => {
   const user = {
     name: "julio",
@@ -15731,28 +15769,9 @@ describe("Unit test CreateUseCase", () => {
     password: "23234234"
   };
   test("should create users", async () => {
-    const userSql = new UserRepositoryInMemory();
-    const createUser = new CreateUserUseCase(userSql);
-    const usersList = await createUser.execute(user);
-    console.log(usersList);
-  });
-  test("should get all users", async () => {
-    const userSql = new UserRepositoryInMemory();
-    const findUsersLIst = new GetUsers(userSql);
-    const usersList = await findUsersLIst.execute();
-    console.log(usersList);
-  });
-  test("should get users by email", async () => {
-    const userSql = new UserRepositoryInMemory();
-    const findUsersLIst = new GetUserByEmail(userSql);
-    const usersList = await findUsersLIst.execute(user.email);
-    console.log(usersList);
-  });
-  test("should get a user by id", async () => {
-    const userSql = new UserRepositoryInMemory();
-    const findUserById = new GetUserById(userSql);
-    const user2 = await findUserById.execute("2");
-    globalExpect(user2.name).toBe("Luan");
+    const userInMemory = new UserRepositoryInMemory();
+    const createUser = new CreateUserUseCase(userInMemory);
+    await createUser.execute(user);
   });
 });
 /*! Bundled license information:

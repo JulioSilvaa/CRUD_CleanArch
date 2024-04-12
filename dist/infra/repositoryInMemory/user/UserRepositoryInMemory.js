@@ -17,7 +17,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
+// src/infra/repositoryInMemory/user/UserRepositoryInMemory.ts
 var UserRepositoryInMemory_exports = {};
 __export(UserRepositoryInMemory_exports, {
   default: () => UserRepositoryInMemory
@@ -56,7 +56,7 @@ var UserAdapter = class {
   }
 };
 
-// src/infra/UserRepositoryInMemory/UserRepositoryInMemory.ts
+// src/infra/repositoryInMemory/user/UserRepositoryInMemory.ts
 var UserRepositoryInMemory = class {
   userList = [
     {

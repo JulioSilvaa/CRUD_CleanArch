@@ -49,7 +49,7 @@ var ExpressAdapter = class {
   }
 };
 
-// src/core/useCase/CreateUser.ts
+// src/core/useCase/user/CreateUser.ts
 var import_bcrypt = __toESM(require("bcrypt"));
 var CreateUserUseCase = class {
   _userRepository;
@@ -69,7 +69,7 @@ var CreateUserUseCase = class {
   }
 };
 
-// src/core/useCase/EditeUser.ts
+// src/core/useCase/user/EditeUser.ts
 var EditeUser = class {
   _userRepository;
   constructor(userRepository) {
@@ -80,7 +80,7 @@ var EditeUser = class {
   }
 };
 
-// src/core/useCase/GetUserByEmail.ts
+// src/core/useCase/user/GetUserByEmail.ts
 var GetUserByEmail = class {
   _useRepository;
   constructor(userRepository) {
@@ -92,7 +92,7 @@ var GetUserByEmail = class {
   }
 };
 
-// src/core/useCase/GetUserById.ts
+// src/core/useCase/user/GetUserById.ts
 var GetUserById = class {
   _userRepository;
   constructor(userRepository) {
@@ -107,7 +107,7 @@ var GetUserById = class {
   }
 };
 
-// src/core/useCase/GetUsers.ts
+// src/core/useCase/user/GetUsers.ts
 var GetUsers = class {
   _userRepository;
   constructor(userRepository) {
@@ -116,13 +116,13 @@ var GetUsers = class {
   async execute() {
     const userList = await this._userRepository.get();
     if (userList.length === 0) {
-      console.log("Lista est\xE1 vazia");
+      throw new Error("Lista est\xE1 vazia");
     }
     return userList;
   }
 };
 
-// src/infra/repositorySQL/UserRepositorySQL.ts
+// src/infra/repositorySQL/user/UserRepositorySQL.ts
 var import_client = require("@prisma/client");
 
 // src/core/entities/UserEntity.ts
@@ -157,7 +157,7 @@ var UserAdapter = class {
   }
 };
 
-// src/infra/repositorySQL/UserRepositorySQL.ts
+// src/infra/repositorySQL/user/UserRepositorySQL.ts
 var prisma = new import_client.PrismaClient();
 var UserRepositorySQL = class {
   async save({ name, email, phone, password }) {
@@ -283,8 +283,8 @@ var UserController = class {
     try {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
-      const userLista = await user.execute();
-      return res.status(200).json({ userLista, quantity: userLista.length });
+      const data = await user.execute();
+      return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);
     }

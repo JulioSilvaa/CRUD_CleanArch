@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import CreateUserUseCase from "src/core/useCase/CreateUser";
-import EditeUser from "src/core/useCase/EditeUser";
-import GetUserByEmail from "src/core/useCase/GetUserByEmail";
-import GetUserById from "src/core/useCase/GetUserById";
-import GetUsers from "src/core/useCase/GetUsers";
-import UserRepositorySQL from "src/infra/repositorySQL/UserRepositorySQL";
+import CreateUserUseCase from "src/core/useCase/user/CreateUser";
+import EditeUser from "src/core/useCase/user/EditeUser";
+import GetUserByEmail from "src/core/useCase/user/GetUserByEmail";
+import GetUserById from "src/core/useCase/user/GetUserById";
+import GetUsers from "src/core/useCase/user/GetUsers";
+import UserRepositorySQL from "src/infra/repositorySQL/user/UserRepositorySQL";
+
 
 export default class UserController {
   static async add(req: Request, res: Response, next: NextFunction) {
@@ -96,8 +97,8 @@ export default class UserController {
     try {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
-      const userLista = await user.execute();
-      return res.status(200).json({ userLista, quantity: userLista.length });
+      const data = await user.execute();
+      return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);
     }

@@ -1,5 +1,6 @@
-import { IUserInterface } from "../entities/UserEntity";
-import UserRepository from "../repositories/UserRepository";
+import { IUserInterface } from "src/core/entities/UserEntity";
+import UserRepository from "src/core/repositories/UserRepository";
+
 
 
 export default class EditeUser {
