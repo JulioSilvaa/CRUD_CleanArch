@@ -15742,7 +15742,13 @@ var UserRepositorySQL = class {
   }
   async get() {
     const userList = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true
+      },
       orderBy: { createdAt: "desc" }
     });
     return userList;
@@ -15769,9 +15775,6 @@ var GetUsers = class {
   }
   async execute() {
     const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      throw new Error("Lista est\xE1 vazia");
-    }
     return userList;
   }
 };

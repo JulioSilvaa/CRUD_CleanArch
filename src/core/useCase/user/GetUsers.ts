@@ -9,9 +9,6 @@ export default class GetUsers {
 
   async execute() {
     const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      throw new Error("Lista está vazia");
-    }
     return userList;
   }
 }

@@ -17,19 +17,25 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/user/GetUsers.ts
-var GetUsers_exports = {};
-__export(GetUsers_exports, {
-  default: () => GetUsers
+// src/core/entities/ServicesEntity.ts
+var ServicesEntity_exports = {};
+__export(ServicesEntity_exports, {
+  default: () => Services
 });
-module.exports = __toCommonJS(GetUsers_exports);
-var GetUsers = class {
-  _userRepository;
-  constructor(userRepository) {
-    this._userRepository = userRepository;
-  }
-  async execute() {
-    const userList = await this._userRepository.get();
-    return userList;
+module.exports = __toCommonJS(ServicesEntity_exports);
+var Services = class {
+  id;
+  userId;
+  name;
+  price;
+  description;
+  createdAt;
+  constructor(props) {
+    this.id = props.id;
+    this.userId = props.userId;
+    this.name = props.name;
+    this.price = props.price;
+    this.description = props.description;
+    this.createdAt = props.createdAt;
   }
 };

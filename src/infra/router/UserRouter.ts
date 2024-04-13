@@ -1,6 +1,7 @@
 import { Router } from "express";
 import ExpressAdapter from "src/adapters/ExpressAdapter";
-import UserController from "src/controller/userController";
+import UserController from "src/controller/UserController";
+
 
 
 

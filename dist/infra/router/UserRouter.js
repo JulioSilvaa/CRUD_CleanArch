@@ -115,9 +115,6 @@ var GetUsers = class {
   }
   async execute() {
     const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      throw new Error("Lista est\xE1 vazia");
-    }
     return userList;
   }
 };
@@ -198,14 +195,20 @@ var UserRepositorySQL = class {
   }
   async get() {
     const userList = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true
+      },
       orderBy: { createdAt: "desc" }
     });
     return userList;
   }
 };
 
-// src/controller/userController.ts
+// src/controller/UserController.ts
 var UserController = class {
   static async add(req, res, next) {
     try {
@@ -284,6 +287,9 @@ var UserController = class {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
       const data = await user.execute();
+      if (data.length === 0) {
+        res.status(200).json({ message: "Lista vazia" });
+      }
       return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);

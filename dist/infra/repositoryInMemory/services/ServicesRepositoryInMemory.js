@@ -17,19 +17,21 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/user/GetUsers.ts
-var GetUsers_exports = {};
-__export(GetUsers_exports, {
-  default: () => GetUsers
+// src/infra/repositoryInMemory/services/ServicesRepositoryInMemory.ts
+var ServicesRepositoryInMemory_exports = {};
+__export(ServicesRepositoryInMemory_exports, {
+  default: () => ServicesRepositoryInMemory
 });
-module.exports = __toCommonJS(GetUsers_exports);
-var GetUsers = class {
-  _userRepository;
-  constructor(userRepository) {
-    this._userRepository = userRepository;
+module.exports = __toCommonJS(ServicesRepositoryInMemory_exports);
+var ServicesRepositoryInMemory = class {
+  listOfServices = [];
+  delete(id) {
+    throw new Error("Method not implemented.");
   }
-  async execute() {
-    const userList = await this._userRepository.get();
-    return userList;
+  async getAll(userId) {
+    throw new Error("Method not implemented.");
+  }
+  async add({ name, price, description }) {
+    await this.listOfServices.push({ name, price, description });
   }
 };

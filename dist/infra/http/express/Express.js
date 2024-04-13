@@ -23,9 +23,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/infra/http/express/Express.ts
-var import_express2 = __toESM(require("express"));
+var import_express3 = __toESM(require("express"));
 
-// src/infra/router/UserRouter.ts
+// src/infra/router/ServicesRouter.ts
 var import_express = require("express");
 
 // src/adapters/ExpressAdapter.ts
@@ -41,6 +41,73 @@ var ExpressAdapter = class {
     };
   }
 };
+
+// src/infra/repositorySQL/services/ServicesRepositorySQL.ts
+var import_client = require("@prisma/client");
+var prisma = new import_client.PrismaClient();
+var ServiceRepositorySQL = class {
+  async delete(id) {
+    await prisma.service.delete({ where: { id } });
+  }
+  async getAll(userId) {
+    const serviceList = await prisma.service.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" }
+    });
+    return serviceList;
+  }
+  async add({ name, price, description, userId }) {
+    await prisma.service.create({ data: { name, price, description, userId } });
+  }
+};
+
+// src/controller/ServicesController.ts
+var ServicesController = class {
+  static async add(req, res, next) {
+    try {
+      const serviceSQL = new ServiceRepositorySQL();
+      await serviceSQL.add(req.body);
+      res.status(201).json({ message: "Servi\xE7o adicionado com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getAll(req, res, next) {
+    try {
+      const serviceSQL = new ServiceRepositorySQL();
+      const list = await serviceSQL.getAll(
+        "a7cf3e54-fd05-4533-80ca-2a8419be7abc"
+        //quando estiver logado passo o id
+      );
+      if (list.length === 0) {
+        res.status(200).json({ message: "Lista vazia" });
+      }
+      res.status(200).json({ data: list });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async delete(req, res, next) {
+    try {
+      const id = req.params.id;
+      const serviceSQL = new ServiceRepositorySQL();
+      serviceSQL.delete(id);
+      res.status(200).json({ message: "Servi\xE7o exclu\xEDdo com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+};
+
+// src/infra/router/ServicesRouter.ts
+var router = (0, import_express.Router)();
+router.post("/", ExpressAdapter.create(ServicesController.add));
+router.get("/", ExpressAdapter.create(ServicesController.getAll));
+router.delete("/:id", ExpressAdapter.create(ServicesController.delete));
+var ServicesRouter_default = router;
+
+// src/infra/router/UserRouter.ts
+var import_express2 = require("express");
 
 // src/core/useCase/user/CreateUser.ts
 var import_bcrypt = __toESM(require("bcrypt"));
@@ -108,15 +175,12 @@ var GetUsers = class {
   }
   async execute() {
     const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      throw new Error("Lista est\xE1 vazia");
-    }
     return userList;
   }
 };
 
 // src/infra/repositorySQL/user/UserRepositorySQL.ts
-var import_client = require("@prisma/client");
+var import_client2 = require("@prisma/client");
 
 // src/core/entities/UserEntity.ts
 var UserEntity = class {
@@ -151,13 +215,13 @@ var UserAdapter = class {
 };
 
 // src/infra/repositorySQL/user/UserRepositorySQL.ts
-var prisma = new import_client.PrismaClient();
+var prisma2 = new import_client2.PrismaClient();
 var UserRepositorySQL = class {
   async save({ name, email, phone, password }) {
-    await prisma.user.create({ data: { name, email, phone, password } });
+    await prisma2.user.create({ data: { name, email, phone, password } });
   }
   async findByEmail(email) {
-    const user = await prisma.user.findFirst({ where: { email } });
+    const user = await prisma2.user.findFirst({ where: { email } });
     if (!user) {
       return null;
     }
@@ -170,7 +234,7 @@ var UserRepositorySQL = class {
     });
   }
   async findUserById(id) {
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma2.user.findUnique({ where: { id } });
     if (!user) {
       return null;
     }
@@ -184,21 +248,27 @@ var UserRepositorySQL = class {
   }
   async update(user, data) {
     const { id } = user;
-    await prisma.user.update({ where: { id }, data });
+    await prisma2.user.update({ where: { id }, data });
   }
   async deleteUser(id) {
-    await prisma.user.delete({ where: { id } });
+    await prisma2.user.delete({ where: { id } });
   }
   async get() {
-    const userList = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+    const userList = await prisma2.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true
+      },
       orderBy: { createdAt: "desc" }
     });
     return userList;
   }
 };
 
-// src/controller/userController.ts
+// src/controller/UserController.ts
 var UserController = class {
   static async add(req, res, next) {
     try {
@@ -277,6 +347,9 @@ var UserController = class {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
       const data = await user.execute();
+      if (data.length === 0) {
+        res.status(200).json({ message: "Lista vazia" });
+      }
       return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);
@@ -285,21 +358,22 @@ var UserController = class {
 };
 
 // src/infra/router/UserRouter.ts
-var router = (0, import_express.Router)();
-router.get("/search", ExpressAdapter.create(UserController.search));
-router.get("/:id", ExpressAdapter.create(UserController.findUserById));
-router.delete("/:id", ExpressAdapter.create(UserController.delete));
-router.patch("/:id", ExpressAdapter.create(UserController.update));
-router.get("/", ExpressAdapter.create(UserController.getUsers));
-router.post("/", ExpressAdapter.create(UserController.add));
-var UserRouter_default = router;
+var router2 = (0, import_express2.Router)();
+router2.get("/search", ExpressAdapter.create(UserController.search));
+router2.get("/:id", ExpressAdapter.create(UserController.findUserById));
+router2.delete("/:id", ExpressAdapter.create(UserController.delete));
+router2.patch("/:id", ExpressAdapter.create(UserController.update));
+router2.get("/", ExpressAdapter.create(UserController.getUsers));
+router2.post("/", ExpressAdapter.create(UserController.add));
+var UserRouter_default = router2;
 
 // src/infra/http/express/Express.ts
-var app = (0, import_express2.default)();
+var app = (0, import_express3.default)();
 var port = process.env.PORT || 3e3;
-app.use(import_express2.default.json());
-app.use(import_express2.default.urlencoded({ extended: true }));
+app.use(import_express3.default.json());
+app.use(import_express3.default.urlencoded({ extended: true }));
 app.use("/api/user", UserRouter_default);
+app.use("/api/services", ServicesRouter_default);
 app.use((err, req, res, next) => {
   console.error(err);
   if (err instanceof Error) {
