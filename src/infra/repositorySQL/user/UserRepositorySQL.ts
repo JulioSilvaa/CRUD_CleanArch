@@ -22,6 +22,7 @@ export default class UserRepositorySQL implements UserRepository {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      password: user.password,
       createdAt: user.createdAt,
     });
   }

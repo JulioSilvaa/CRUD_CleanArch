@@ -15717,6 +15717,7 @@ var UserRepositorySQL = class {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      password: user.password,
       createdAt: user.createdAt
     });
   }
