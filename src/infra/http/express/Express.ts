@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import ServicesRouter from "src/infra/router/ServicesRouter";
 import UserRouter from "src/infra/router/UserRouter";
 
 const app = express();
@@ -8,6 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", UserRouter);
+app.use("/api/services", ServicesRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);

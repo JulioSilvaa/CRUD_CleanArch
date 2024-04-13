@@ -99,7 +99,13 @@ var UserRepositorySQL = class {
   }
   async get() {
     const userList = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true
+      },
       orderBy: { createdAt: "desc" }
     });
     return userList;

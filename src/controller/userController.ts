@@ -6,7 +6,6 @@ import GetUserById from "src/core/useCase/user/GetUserById";
 import GetUsers from "src/core/useCase/user/GetUsers";
 import UserRepositorySQL from "src/infra/repositorySQL/user/UserRepositorySQL";
 
-
 export default class UserController {
   static async add(req: Request, res: Response, next: NextFunction) {
     try {
@@ -40,7 +39,6 @@ export default class UserController {
     }
   }
 
-
   static async search(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.query;
@@ -56,8 +54,6 @@ export default class UserController {
       next(error);
     }
   }
-
-
 
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
@@ -86,18 +82,22 @@ export default class UserController {
       }
       const editUser = new EditeUser(userSQL);
       editUser.execute(user, req.body);
-      return res.status(200).json({ message: "Usuário atualizado com sucesso!" });
+      return res
+        .status(200)
+        .json({ message: "Usuário atualizado com sucesso!" });
     } catch (error) {
       next(error);
     }
   }
-
 
   static async getUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
       const data = await user.execute();
+      if (data.length === 0) {
+        res.status(200).json({ message: "Lista vazia" });
+      }
       return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);

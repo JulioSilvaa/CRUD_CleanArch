@@ -6,7 +6,6 @@ import UserRepository from "src/core/repositories/UserRepository";
 export const prisma = new PrismaClient();
 
 export default class UserRepositorySQL implements UserRepository {
-
   async save({ name, email, phone, password }: IUserInterface): Promise<void> {
     await prisma.user.create({ data: { name, email, phone, password } });
   }
@@ -49,13 +48,19 @@ export default class UserRepositorySQL implements UserRepository {
   }
 
   async deleteUser(id: string): Promise<void> {
-    await prisma.user.delete({ where: { id } })
+    await prisma.user.delete({ where: { id } });
   }
-
 
   async get(): Promise<IUserInterface[] | any> {
     const userList: any[] = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+      },
+
       orderBy: { createdAt: "desc" },
     });
     return userList;

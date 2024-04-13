@@ -27,12 +27,12 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/controller/userController.ts
-var userController_exports = {};
-__export(userController_exports, {
+// src/controller/UserController.ts
+var UserController_exports = {};
+__export(UserController_exports, {
   default: () => UserController
 });
-module.exports = __toCommonJS(userController_exports);
+module.exports = __toCommonJS(UserController_exports);
 
 // src/core/useCase/user/CreateUser.ts
 var import_bcrypt = __toESM(require("bcrypt"));
@@ -100,9 +100,6 @@ var GetUsers = class {
   }
   async execute() {
     const userList = await this._userRepository.get();
-    if (userList.length === 0) {
-      throw new Error("Lista est\xE1 vazia");
-    }
     return userList;
   }
 };
@@ -183,14 +180,20 @@ var UserRepositorySQL = class {
   }
   async get() {
     const userList = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true
+      },
       orderBy: { createdAt: "desc" }
     });
     return userList;
   }
 };
 
-// src/controller/userController.ts
+// src/controller/UserController.ts
 var UserController = class {
   static async add(req, res, next) {
     try {
@@ -269,6 +272,9 @@ var UserController = class {
       const userSQL = new UserRepositorySQL();
       const user = new GetUsers(userSQL);
       const data = await user.execute();
+      if (data.length === 0) {
+        res.status(200).json({ message: "Lista vazia" });
+      }
       return res.status(200).json({ data, total: data.length });
     } catch (error) {
       next(error);
