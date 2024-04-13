@@ -49,8 +49,52 @@ var ExpressAdapter = class {
   }
 };
 
-// src/core/useCase/user/CreateUser.ts
+// src/core/useCase/user/AuthUser.ts
 var import_bcrypt = __toESM(require("bcrypt"));
+
+// src/utils/generateToken.ts
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
+function generateAccessToken(id) {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    throw new Error("Access token failed");
+  }
+  return import_jsonwebtoken.default.sign({ userId: id }, process.env.JWT_ACCESS_SECRET, {
+    expiresIn: "7d",
+    subject: id
+  });
+}
+
+// src/core/useCase/user/AuthUser.ts
+var AuthUser = class {
+  _userRepository;
+  constructor(userRepository) {
+    this._userRepository = userRepository;
+  }
+  async execute(email, password) {
+    const userFound = await this._userRepository.findByEmail(email);
+    if (!userFound) {
+      throw new Error("Usu\xE1rio ou senha incorreto");
+    }
+    const passwordIsValid = await import_bcrypt.default.compare(password, userFound.password);
+    if (!passwordIsValid) {
+      throw new Error("Usu\xE1rio ou senha incorreto");
+    }
+    const AuthenticatedUser = {
+      id: userFound.id,
+      name: userFound.name,
+      phone: userFound.phone,
+      email: userFound.email
+    };
+    const token = generateAccessToken(AuthenticatedUser.id);
+    return {
+      ...AuthenticatedUser,
+      token
+    };
+  }
+};
+
+// src/core/useCase/user/CreateUser.ts
+var import_bcrypt2 = __toESM(require("bcrypt"));
 var CreateUserUseCase = class {
   _userRepository;
   constructor(userRepository) {
@@ -58,7 +102,7 @@ var CreateUserUseCase = class {
   }
   async execute({ name, email, password, phone }) {
     const numberOfSalt = 14;
-    const passwordHash = await import_bcrypt.default.hash(password, numberOfSalt);
+    const passwordHash = await import_bcrypt2.default.hash(password, numberOfSalt);
     const user = await this._userRepository.save({
       name,
       email,
@@ -170,6 +214,7 @@ var UserRepositorySQL = class {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      password: user.password,
       createdAt: user.createdAt
     });
   }
@@ -208,7 +253,7 @@ var UserRepositorySQL = class {
   }
 };
 
-// src/controller/UserController.ts
+// src/controller/userController.ts
 var UserController = class {
   static async add(req, res, next) {
     try {
@@ -295,6 +340,19 @@ var UserController = class {
       next(error);
     }
   }
+  static async auth(req, res, next) {
+    try {
+      const userSQL = new UserRepositorySQL();
+      const userAuthenticated = new AuthUser(userSQL);
+      const userData = await userAuthenticated.execute(
+        req.body.email,
+        req.body.password
+      );
+      return res.status(200).json({ userData });
+    } catch (error) {
+      next(error);
+    }
+  }
 };
 
 // src/infra/router/UserRouter.ts
@@ -303,6 +361,7 @@ router.get("/search", ExpressAdapter.create(UserController.search));
 router.get("/:id", ExpressAdapter.create(UserController.findUserById));
 router.delete("/:id", ExpressAdapter.create(UserController.delete));
 router.patch("/:id", ExpressAdapter.create(UserController.update));
+router.post("/auth", ExpressAdapter.create(UserController.auth));
 router.get("/", ExpressAdapter.create(UserController.getUsers));
 router.post("/", ExpressAdapter.create(UserController.add));
 var UserRouter_default = router;

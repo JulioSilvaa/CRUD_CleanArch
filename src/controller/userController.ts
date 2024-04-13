@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import AuthUser from "src/core/useCase/user/AuthUser";
 import CreateUserUseCase from "src/core/useCase/user/CreateUser";
 import EditeUser from "src/core/useCase/user/EditeUser";
 import GetUserByEmail from "src/core/useCase/user/GetUserByEmail";
@@ -99,6 +100,20 @@ export default class UserController {
         res.status(200).json({ message: "Lista vazia" });
       }
       return res.status(200).json({ data, total: data.length });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async auth(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userSQL = new UserRepositorySQL();
+      const userAuthenticated = new AuthUser(userSQL);
+      const userData = await userAuthenticated.execute(
+        req.body.email,
+        req.body.password
+      );
+      return res.status(200).json({ userData });
     } catch (error) {
       next(error);
     }
