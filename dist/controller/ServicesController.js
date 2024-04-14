@@ -47,6 +47,7 @@ var ServiceRepositorySQL = class {
 var ServicesController = class {
   static async add(req, res, next) {
     try {
+      console.log("REQ", req);
       const serviceSQL = new ServiceRepositorySQL();
       await serviceSQL.add(req.body);
       res.status(201).json({ message: "Servi\xE7o adicionado com sucesso!" });
