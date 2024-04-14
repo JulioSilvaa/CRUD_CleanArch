@@ -4,6 +4,7 @@ import ServicesRepositorySQL from "src/infra/repositorySQL/services/ServicesRepo
 export default class ServicesController {
   static async add(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("REQ", req);
       const serviceSQL = new ServicesRepositorySQL();
       await serviceSQL.add(req.body);
       res.status(201).json({ message: "Serviço adicionado com sucesso!" });
