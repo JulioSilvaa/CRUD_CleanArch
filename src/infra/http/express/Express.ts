@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import SchedulesRouter from "src/infra/router/SchedulesRouter";
 import ServicesRouter from "src/infra/router/ServicesRouter";
 import UserRouter from "src/infra/router/UserRouter";
 
@@ -10,6 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", UserRouter);
 app.use("/api/services", ServicesRouter);
+app.use("/api/schedules", SchedulesRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);

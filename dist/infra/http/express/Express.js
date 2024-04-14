@@ -23,9 +23,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/infra/http/express/Express.ts
-var import_express3 = __toESM(require("express"));
+var import_express4 = __toESM(require("express"));
 
-// src/infra/router/ServicesRouter.ts
+// src/infra/router/SchedulesRouter.ts
 var import_express = require("express");
 
 // src/adapters/ExpressAdapter.ts
@@ -41,6 +41,58 @@ var ExpressAdapter = class {
     };
   }
 };
+
+// src/controller/SchedulesController.ts
+var SchedulesController = class {
+  static async save(req, res, next) {
+    try {
+      const user = req.user_id;
+      console.log(user);
+      res.status(201).json({ message: "Servi\xE7o adicionado com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+};
+
+// src/middlewares/AuthMiddleware.ts
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
+var AuthMiddleware = class {
+  auth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.send(401);
+    }
+    const [, token] = authHeader.split(" ");
+    if (!token) {
+      return res.send(401);
+    }
+    if (process.env.JWT_ACCESS_SECRET)
+      try {
+        const { sub } = import_jsonwebtoken.default.verify(
+          token,
+          process.env.JWT_ACCESS_SECRET
+        );
+        req.user_id = sub;
+        next();
+      } catch (error) {
+        return res.status(500).json({ message: error });
+      }
+  }
+};
+var AuthMiddleware_default = new AuthMiddleware();
+
+// src/infra/router/SchedulesRouter.ts
+var router = (0, import_express.Router)();
+router.post(
+  "/",
+  AuthMiddleware_default.auth,
+  ExpressAdapter.create(SchedulesController.save)
+);
+var SchedulesRouter_default = router;
+
+// src/infra/router/ServicesRouter.ts
+var import_express2 = require("express");
 
 // src/infra/repositorySQL/services/ServicesRepositorySQL.ts
 var import_client = require("@prisma/client");
@@ -101,25 +153,25 @@ var ServicesController = class {
 };
 
 // src/infra/router/ServicesRouter.ts
-var router = (0, import_express.Router)();
-router.post("/", ExpressAdapter.create(ServicesController.add));
-router.get("/", ExpressAdapter.create(ServicesController.getAll));
-router.delete("/:id", ExpressAdapter.create(ServicesController.delete));
-var ServicesRouter_default = router;
+var router2 = (0, import_express2.Router)();
+router2.post("/", ExpressAdapter.create(ServicesController.add));
+router2.get("/", ExpressAdapter.create(ServicesController.getAll));
+router2.delete("/:id", ExpressAdapter.create(ServicesController.delete));
+var ServicesRouter_default = router2;
 
 // src/infra/router/UserRouter.ts
-var import_express2 = require("express");
+var import_express3 = require("express");
 
 // src/core/useCase/user/AuthUser.ts
 var import_bcrypt = __toESM(require("bcrypt"));
 
 // src/utils/generateToken.ts
-var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
+var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"));
 function generateAccessToken(id) {
   if (!process.env.JWT_ACCESS_SECRET) {
     throw new Error("Access token failed");
   }
-  return import_jsonwebtoken.default.sign({ userId: id }, process.env.JWT_ACCESS_SECRET, {
+  return import_jsonwebtoken2.default.sign({ userId: id }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: "7d",
     subject: id
   });
@@ -417,23 +469,24 @@ var UserController = class {
 };
 
 // src/infra/router/UserRouter.ts
-var router2 = (0, import_express2.Router)();
-router2.get("/search", ExpressAdapter.create(UserController.search));
-router2.get("/:id", ExpressAdapter.create(UserController.findUserById));
-router2.delete("/:id", ExpressAdapter.create(UserController.delete));
-router2.patch("/:id", ExpressAdapter.create(UserController.update));
-router2.post("/auth", ExpressAdapter.create(UserController.auth));
-router2.get("/", ExpressAdapter.create(UserController.getUsers));
-router2.post("/", ExpressAdapter.create(UserController.add));
-var UserRouter_default = router2;
+var router3 = (0, import_express3.Router)();
+router3.get("/search", ExpressAdapter.create(UserController.search));
+router3.get("/:id", ExpressAdapter.create(UserController.findUserById));
+router3.delete("/:id", ExpressAdapter.create(UserController.delete));
+router3.patch("/:id", ExpressAdapter.create(UserController.update));
+router3.post("/auth", ExpressAdapter.create(UserController.auth));
+router3.get("/", ExpressAdapter.create(UserController.getUsers));
+router3.post("/", ExpressAdapter.create(UserController.add));
+var UserRouter_default = router3;
 
 // src/infra/http/express/Express.ts
-var app = (0, import_express3.default)();
+var app = (0, import_express4.default)();
 var port = process.env.PORT || 3e3;
-app.use(import_express3.default.json());
-app.use(import_express3.default.urlencoded({ extended: true }));
+app.use(import_express4.default.json());
+app.use(import_express4.default.urlencoded({ extended: true }));
 app.use("/api/user", UserRouter_default);
 app.use("/api/services", ServicesRouter_default);
+app.use("/api/schedules", SchedulesRouter_default);
 app.use((err, req, res, next) => {
   console.error(err);
   if (err instanceof Error) {
