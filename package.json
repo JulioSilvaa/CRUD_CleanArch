@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "seed": "node ./dist/utils/seed_SchedulesStatus.js",
     "dev": "tsx watch ./dist",
     "build": "rimraf ./dist &&  tsup ./src",
     "test": "tsup ./src && vitest run - coverage",
