@@ -42,6 +42,7 @@ model Schedules {
 
 model SchedulesStatus {
   id        String      @id @default(uuid())
-  name      String      @unique
+  createdAt DateTime    @default(now())
+  status    String      @unique
   schedules Schedules[]
 }

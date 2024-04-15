@@ -24,6 +24,41 @@ __export(ServicesController_exports, {
 });
 module.exports = __toCommonJS(ServicesController_exports);
 
+// src/core/useCase/services/Create.ts
+var CreateService = class {
+  _serviceRepository;
+  constructor(servicesRepository) {
+    this._serviceRepository = servicesRepository;
+  }
+  async execute({ name, price, description, userId }) {
+    const service = await this._serviceRepository.add({ name, price, description, userId });
+    return service;
+  }
+};
+
+// src/core/useCase/services/Delete.ts
+var DeleteService = class {
+  _servicesRepository;
+  constructor(servicesRepository) {
+    this._servicesRepository = servicesRepository;
+  }
+  async execute(id) {
+    await this._servicesRepository.delete(id);
+  }
+};
+
+// src/core/useCase/services/GetAll.ts
+var GetAllServices = class {
+  _servicesRepository;
+  constructor(serviceRepository) {
+    this._servicesRepository = serviceRepository;
+  }
+  async execute(userId) {
+    const servicesList = await this._servicesRepository.getAll(userId);
+    return servicesList;
+  }
+};
+
 // src/infra/repositorySQL/services/ServicesRepositorySQL.ts
 var import_client = require("@prisma/client");
 var prisma = new import_client.PrismaClient();
@@ -33,7 +68,7 @@ var ServiceRepositorySQL = class {
   }
   async getAll(userId) {
     const serviceList = await prisma.service.findMany({
-      where: { userId },
+      select: { name: true, price: true, description: true },
       orderBy: { createdAt: "desc" }
     });
     return serviceList;
@@ -47,9 +82,11 @@ var ServiceRepositorySQL = class {
 var ServicesController = class {
   static async add(req, res, next) {
     try {
-      console.log("REQ", req);
+      const userId = req.user_id;
+      const { name, price, description } = req.body;
       const serviceSQL = new ServiceRepositorySQL();
-      await serviceSQL.add(req.body);
+      const createNewService = new CreateService(serviceSQL);
+      await createNewService.execute({ name, price, description, userId });
       res.status(201).json({ message: "Servi\xE7o adicionado com sucesso!" });
     } catch (error) {
       next(error);
@@ -58,10 +95,8 @@ var ServicesController = class {
   static async getAll(req, res, next) {
     try {
       const serviceSQL = new ServiceRepositorySQL();
-      const list = await serviceSQL.getAll(
-        "a7cf3e54-fd05-4533-80ca-2a8419be7abc"
-        //quando estiver logado passo o id
-      );
+      const serviceLIst = new GetAllServices(serviceSQL);
+      const list = await serviceLIst.execute(req.user_id);
       if (list.length === 0) {
         res.status(200).json({ message: "Lista vazia" });
       }
@@ -74,7 +109,8 @@ var ServicesController = class {
     try {
       const id = req.params.id;
       const serviceSQL = new ServiceRepositorySQL();
-      serviceSQL.delete(id);
+      const deleteService = new DeleteService(serviceSQL);
+      await deleteService.execute(id);
       res.status(200).json({ message: "Servi\xE7o exclu\xEDdo com sucesso!" });
     } catch (error) {
       next(error);

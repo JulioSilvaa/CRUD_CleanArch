@@ -32,7 +32,7 @@ var ServiceRepositorySQL = class {
   }
   async getAll(userId) {
     const serviceList = await prisma.service.findMany({
-      where: { userId },
+      select: { name: true, price: true, description: true },
       orderBy: { createdAt: "desc" }
     });
     return serviceList;

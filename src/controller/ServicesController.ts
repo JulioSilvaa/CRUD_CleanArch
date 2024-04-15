@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import CreateService from "src/core/useCase/services/Create";
+import DeleteService from "src/core/useCase/services/Delete";
+import GetAllServices from "src/core/useCase/services/GetAll";
 import ServicesRepositorySQL from "src/infra/repositorySQL/services/ServicesRepositorySQL";
 
 export default class ServicesController {
   static async add(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("REQ", req);
+      const userId = req.user_id;
+      const { name, price, description } = req.body;
       const serviceSQL = new ServicesRepositorySQL();
-      await serviceSQL.add(req.body);
+      const createNewService = new CreateService(serviceSQL);
+      await createNewService.execute({ name, price, description, userId });
       res.status(201).json({ message: "Serviço adicionado com sucesso!" });
     } catch (error) {
       next(error);
@@ -16,9 +21,9 @@ export default class ServicesController {
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const serviceSQL = new ServicesRepositorySQL();
-      const list = await serviceSQL.getAll(
-        "a7cf3e54-fd05-4533-80ca-2a8419be7abc" //quando estiver logado passo o id
-      );
+      const serviceLIst = new GetAllServices(serviceSQL);
+      const list = await serviceLIst.execute(req.user_id);
+
       if (list.length === 0) {
         res.status(200).json({ message: "Lista vazia" });
       }
@@ -32,7 +37,8 @@ export default class ServicesController {
     try {
       const id = req.params.id;
       const serviceSQL = new ServicesRepositorySQL();
-      serviceSQL.delete(id);
+      const deleteService = new DeleteService(serviceSQL);
+      await deleteService.execute(id);
       res.status(200).json({ message: "Serviço excluído com sucesso!" });
     } catch (error) {
       next(error);

@@ -30,7 +30,6 @@ var GetAllServices = class {
   }
   async execute(userId) {
     const servicesList = await this._servicesRepository.getAll(userId);
-    console.log(servicesList);
     return servicesList;
   }
 };
