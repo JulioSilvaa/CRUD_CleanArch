@@ -7,10 +7,10 @@ async function seedSchedulesStatus() {
   try {
     await prisma.schedulesStatus.createMany({
       data: [
-        { id: "1", name: "Agendado" },
-        { id: "2", name: "Confirmado" },
-        { id: "3", name: "Cancelado" },
-        { id: "4", name: "Conclu\xEDdo" }
+        { id: "1", status: "Agendado" },
+        { id: "2", status: "Confirmado" },
+        { id: "3", status: "Cancelado" },
+        { id: "4", status: "Conclu\xEDdo" }
       ]
     });
     console.log("Appointment status seeded successfully.");

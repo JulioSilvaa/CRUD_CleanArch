@@ -9,9 +9,9 @@ export default class ServiceRepositorySQL implements ServicesRepository {
   async delete(id: string): Promise<void> {
     await prisma.service.delete({ where: { id } });
   }
-  async getAll(userId: string): Promise<IService[]> {
+  async getAll(userId: string): Promise<any> {
     const serviceList = await prisma.service.findMany({
-      where: { userId },
+      select: { name: true, price: true, description: true },
       orderBy: { createdAt: "desc" },
     });
     return serviceList;
