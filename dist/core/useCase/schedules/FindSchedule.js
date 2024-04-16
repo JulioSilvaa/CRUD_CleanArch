@@ -17,18 +17,22 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/schedules/CreateSchedule.ts
-var CreateSchedule_exports = {};
-__export(CreateSchedule_exports, {
-  default: () => CreateSchedules
+// src/core/useCase/schedules/FindSchedule.ts
+var FindSchedule_exports = {};
+__export(FindSchedule_exports, {
+  default: () => FindSchedule
 });
-module.exports = __toCommonJS(CreateSchedule_exports);
-var CreateSchedules = class {
+module.exports = __toCommonJS(FindSchedule_exports);
+var FindSchedule = class {
   _scheduleRepository;
   constructor(scheduleRepository) {
     this._scheduleRepository = scheduleRepository;
   }
-  async execute({ dateTime, schedulestatusId, serviceId, userId }) {
-    await this._scheduleRepository.save({ dateTime, schedulestatusId, serviceId, userId });
+  async execute(id, userId) {
+    const schedule = await this._scheduleRepository.find(id, userId);
+    if (schedule === null) {
+      throw new Error("Usu\xE1rio sem permiss\xE3o");
+    }
+    return schedule;
   }
 };

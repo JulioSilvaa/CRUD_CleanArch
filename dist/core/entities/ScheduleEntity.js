@@ -25,15 +25,15 @@ __export(ScheduleEntity_exports, {
 module.exports = __toCommonJS(ScheduleEntity_exports);
 var ScheduleEntity = class {
   id;
-  dataTime;
+  dateTime;
   userId;
   serviceId;
-  scheduleStatusId;
+  schedulestatusId;
   constructor(props) {
     this.id = props.id;
-    this.dataTime = props.dataTime;
+    this.dateTime = props.dateTime;
     this.userId = props.userId;
     this.serviceId = props.serviceId;
-    this.scheduleStatusId = props.scheduleStatusId;
+    this.schedulestatusId = props.schedulestatusId;
   }
 };

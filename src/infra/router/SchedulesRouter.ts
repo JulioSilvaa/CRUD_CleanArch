@@ -9,5 +9,10 @@ router.post(
   AuthMiddleware.auth,
   ExpressAdapter.create(SchedulesController.save)
 );
+router.get("/:id", AuthMiddleware.auth, ExpressAdapter.create(SchedulesController.find));
+router.get("/", AuthMiddleware.auth, ExpressAdapter.create(SchedulesController.getAll));
+router.delete("/:id", AuthMiddleware.auth, ExpressAdapter.create(SchedulesController.delete));
+router.patch("/:id", AuthMiddleware.auth, ExpressAdapter.create(SchedulesController.update))
+
 
 export default router;

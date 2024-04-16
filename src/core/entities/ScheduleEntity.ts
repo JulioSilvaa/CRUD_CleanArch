@@ -1,23 +1,23 @@
 export interface ISchedule {
   id?: string;
-  dataTime: Date;
+  dateTime: string;
   userId: string;
   serviceId: string;
-  scheduleStatusId: string;
+  schedulestatusId: string;
 }
 
 export default class ScheduleEntity {
   id?: string;
-  dataTime: Date;
+  dateTime: string;
   userId: string;
   serviceId: string;
-  scheduleStatusId: string;
+  schedulestatusId: string;
 
   constructor(props: ISchedule) {
     this.id = props.id;
-    this.dataTime = props.dataTime;
+    this.dateTime = props.dateTime;
     this.userId = props.userId;
     this.serviceId = props.serviceId;
-    this.scheduleStatusId = props.scheduleStatusId;
+    this.schedulestatusId = props.schedulestatusId;
   }
 }

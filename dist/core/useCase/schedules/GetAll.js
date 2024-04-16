@@ -17,18 +17,22 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/core/useCase/schedules/CreateSchedule.ts
-var CreateSchedule_exports = {};
-__export(CreateSchedule_exports, {
-  default: () => CreateSchedules
+// src/core/useCase/schedules/GetAll.ts
+var GetAll_exports = {};
+__export(GetAll_exports, {
+  default: () => GetAllSchedules
 });
-module.exports = __toCommonJS(CreateSchedule_exports);
-var CreateSchedules = class {
+module.exports = __toCommonJS(GetAll_exports);
+var GetAllSchedules = class {
   _scheduleRepository;
   constructor(scheduleRepository) {
     this._scheduleRepository = scheduleRepository;
   }
-  async execute({ dateTime, schedulestatusId, serviceId, userId }) {
-    await this._scheduleRepository.save({ dateTime, schedulestatusId, serviceId, userId });
+  async execute(id) {
+    const schedulesListOfUserId = await this._scheduleRepository.getAll(id);
+    if (!schedulesListOfUserId || schedulesListOfUserId.length === 0) {
+      throw new Error("Lista de Agendamentos vazia");
+    }
+    return schedulesListOfUserId;
   }
 };
